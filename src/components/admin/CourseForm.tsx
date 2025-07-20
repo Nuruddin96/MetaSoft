@@ -15,6 +15,7 @@ import { X, Plus } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
+import { FileUpload } from './FileUpload';
 
 const courseSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -492,23 +493,68 @@ export const CourseForm = ({ course, categories, onSubmit, onCancel }: CourseFor
             <CardHeader>
               <CardTitle>Media & Settings</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="thumbnail_url">Thumbnail URL</Label>
-                <Input
-                  id="thumbnail_url"
-                  {...register('thumbnail_url')}
-                  placeholder="https://example.com/thumbnail.jpg"
-                />
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                <div>
+                  <Label className="text-base font-medium">Course Thumbnail</Label>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Upload a high-quality image for your course thumbnail (recommended: 1280x720px)
+                  </p>
+                  
+                  <FileUpload
+                    onFileUploaded={(url) => setValue('thumbnail_url', url)}
+                    acceptedTypes="image/*,.jpg,.jpeg,.png,.webp"
+                    maxSize={10}
+                    bucketName="course-thumbnails"
+                    folder="thumbnails"
+                  />
+                </div>
+
+                {watch('thumbnail_url') && (
+                  <div className="p-4 border rounded-lg bg-muted/50">
+                    <p className="text-sm font-medium mb-2">Current Thumbnail:</p>
+                    <img 
+                      src={watch('thumbnail_url')} 
+                      alt="Course thumbnail" 
+                      className="w-32 h-18 object-cover rounded border"
+                    />
+                  </div>
+                )}
+
+                <div className="space-y-2">
+                  <Label htmlFor="thumbnail_url_manual">Or Enter Thumbnail URL</Label>
+                  <Input
+                    id="thumbnail_url_manual"
+                    {...register('thumbnail_url')}
+                    placeholder="https://example.com/thumbnail.jpg"
+                  />
+                </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="video_preview_url">Preview Video URL</Label>
-                <Input
-                  id="video_preview_url"
-                  {...register('video_preview_url')}
-                  placeholder="https://example.com/preview.mp4"
-                />
+              <div className="space-y-4">
+                <div>
+                  <Label className="text-base font-medium">Preview Video</Label>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Upload a short preview video to showcase your course content
+                  </p>
+                  
+                  <FileUpload
+                    onFileUploaded={(url) => setValue('video_preview_url', url)}
+                    acceptedTypes="video/*,.mp4,.mov,.avi"
+                    maxSize={50}
+                    bucketName="course-materials"
+                    folder="previews"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="video_preview_url_manual">Or Enter Video URL</Label>
+                  <Input
+                    id="video_preview_url_manual"
+                    {...register('video_preview_url')}
+                    placeholder="https://example.com/preview.mp4"
+                  />
+                </div>
               </div>
 
               <div className="flex items-center justify-between p-4 border rounded-lg">

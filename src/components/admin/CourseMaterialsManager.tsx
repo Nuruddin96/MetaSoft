@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, FileText, Video, File, Download, Upload } from 'lucide-react';
+import { Plus, Edit, Trash2, FileText, Video, File, Download, Upload, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -9,8 +9,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { FileUpload } from './FileUpload';
 
 interface CourseMaterial {
   id: string;
@@ -40,9 +42,11 @@ export const CourseMaterialsManager = ({ courseId, courseName }: CourseMaterials
     description: '',
     type: 'video' as CourseMaterial['type'],
     file_url: '',
+    file_size: 0,
     duration_minutes: 0,
     is_free: false,
   });
+  const [uploadedFile, setUploadedFile] = useState<{url: string, name: string, size: number} | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -77,9 +81,11 @@ export const CourseMaterialsManager = ({ courseId, courseName }: CourseMaterials
       description: '',
       type: 'video',
       file_url: '',
+      file_size: 0,
       duration_minutes: 0,
       is_free: false,
     });
+    setUploadedFile(null);
     setEditingMaterial(null);
   };
 
@@ -90,6 +96,7 @@ export const CourseMaterialsManager = ({ courseId, courseName }: CourseMaterials
         description: material.description || '',
         type: material.type,
         file_url: material.file_url || '',
+        file_size: material.file_size || 0,
         duration_minutes: material.duration_minutes || 0,
         is_free: material.is_free,
       });
@@ -98,6 +105,21 @@ export const CourseMaterialsManager = ({ courseId, courseName }: CourseMaterials
       resetForm();
     }
     setIsFormOpen(true);
+  };
+
+  const handleFileUploaded = (url: string, fileName: string, fileSize: number) => {
+    setFormData({ 
+      ...formData, 
+      file_url: url,
+      file_size: fileSize,
+      title: formData.title || fileName // Auto-fill title if empty
+    });
+    setUploadedFile({ url, name: fileName, size: fileSize });
+  };
+
+  const removeUploadedFile = () => {
+    setFormData({ ...formData, file_url: '', file_size: 0 });
+    setUploadedFile(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -114,6 +136,7 @@ export const CourseMaterialsManager = ({ courseId, courseName }: CourseMaterials
         description: formData.description || null,
         type: formData.type,
         file_url: formData.file_url || null,
+        file_size: formData.file_size || null,
         duration_minutes: formData.duration_minutes || null,
         order_index: nextOrderIndex,
         is_free: formData.is_free,
@@ -234,83 +257,149 @@ export const CourseMaterialsManager = ({ courseId, courseName }: CourseMaterials
               </DialogTitle>
             </DialogHeader>
             
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="title">Title</Label>
-                <Input
-                  id="title"
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  placeholder="Material title"
-                  required
-                />
-              </div>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <Tabs defaultValue="basic" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="basic">Basic Info</TabsTrigger>
+                  <TabsTrigger value="file">File Upload</TabsTrigger>
+                </TabsList>
 
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Material description"
-                  rows={3}
-                />
-              </div>
+                <TabsContent value="basic" className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="title">Title</Label>
+                    <Input
+                      id="title"
+                      value={formData.title}
+                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                      placeholder="Material title"
+                      required
+                    />
+                  </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="type">Type</Label>
-                <Select value={formData.type} onValueChange={(value) => setFormData({ ...formData, type: value as any })}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="video">Video</SelectItem>
-                    <SelectItem value="pdf">PDF Document</SelectItem>
-                    <SelectItem value="document">Document</SelectItem>
-                    <SelectItem value="quiz">Quiz</SelectItem>
-                    <SelectItem value="assignment">Assignment</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea
+                      id="description"
+                      value={formData.description}
+                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                      placeholder="Material description"
+                      rows={3}
+                    />
+                  </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="file_url">File URL</Label>
-                <Input
-                  id="file_url"
-                  value={formData.file_url}
-                  onChange={(e) => setFormData({ ...formData, file_url: e.target.value })}
-                  placeholder="https://example.com/file.mp4"
-                />
-              </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="type">Type</Label>
+                    <Select value={formData.type} onValueChange={(value) => setFormData({ ...formData, type: value as any })}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="video">Video</SelectItem>
+                        <SelectItem value="pdf">PDF Document</SelectItem>
+                        <SelectItem value="document">Document</SelectItem>
+                        <SelectItem value="quiz">Quiz</SelectItem>
+                        <SelectItem value="assignment">Assignment</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-              {formData.type === 'video' && (
-                <div className="space-y-2">
-                  <Label htmlFor="duration">Duration (minutes)</Label>
-                  <Input
-                    id="duration"
-                    type="number"
-                    min="0"
-                    value={formData.duration_minutes}
-                    onChange={(e) => setFormData({ ...formData, duration_minutes: parseInt(e.target.value) || 0 })}
-                    placeholder="0"
-                  />
-                </div>
-              )}
+                  {formData.type === 'video' && (
+                    <div className="space-y-2">
+                      <Label htmlFor="duration">Duration (minutes)</Label>
+                      <Input
+                        id="duration"
+                        type="number"
+                        min="0"
+                        value={formData.duration_minutes}
+                        onChange={(e) => setFormData({ ...formData, duration_minutes: parseInt(e.target.value) || 0 })}
+                        placeholder="0"
+                      />
+                    </div>
+                  )}
 
-              <div className="flex items-center justify-between p-3 border rounded-lg">
-                <div>
-                  <Label>Free Preview</Label>
-                  <p className="text-sm text-muted-foreground">
-                    Allow non-enrolled students to access this material
-                  </p>
-                </div>
-                <Switch
-                  checked={formData.is_free}
-                  onCheckedChange={(checked) => setFormData({ ...formData, is_free: checked })}
-                />
-              </div>
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <div>
+                      <Label>Free Preview</Label>
+                      <p className="text-sm text-muted-foreground">
+                        Allow non-enrolled students to access this material
+                      </p>
+                    </div>
+                    <Switch
+                      checked={formData.is_free}
+                      onCheckedChange={(checked) => setFormData({ ...formData, is_free: checked })}
+                    />
+                  </div>
+                </TabsContent>
 
-              <div className="flex justify-end gap-3 pt-4">
+                <TabsContent value="file" className="space-y-4">
+                  <div className="space-y-4">
+                    <div>
+                      <Label className="text-base font-medium">Upload File</Label>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Upload your course material file. Supported formats vary by type.
+                      </p>
+                      
+                      <FileUpload
+                        onFileUploaded={handleFileUploaded}
+                        acceptedTypes={
+                          formData.type === 'video' ? 'video/*,.mp4,.mov,.avi,.mkv' :
+                          formData.type === 'pdf' ? '.pdf' :
+                          formData.type === 'document' ? '.doc,.docx,.txt,.rtf' :
+                          '*'
+                        }
+                        maxSize={
+                          formData.type === 'video' ? 500 : // 500MB for videos
+                          formData.type === 'pdf' ? 50 :   // 50MB for PDFs
+                          100 // 100MB for other files
+                        }
+                        bucketName="course-materials"
+                        folder={`course-${courseId}`}
+                      />
+                    </div>
+
+                    {formData.file_url && (
+                      <div className="p-4 border rounded-lg bg-muted/50">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            {getTypeIcon(formData.type)}
+                            <div>
+                              <p className="font-medium">
+                                {uploadedFile?.name || 'Uploaded file'}
+                              </p>
+                              <p className="text-sm text-muted-foreground">
+                                {formatFileSize(formData.file_size)}
+                              </p>
+                            </div>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={removeUploadedFile}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="space-y-2">
+                      <Label htmlFor="file_url_manual">Or Enter File URL Manually</Label>
+                      <Input
+                        id="file_url_manual"
+                        value={formData.file_url}
+                        onChange={(e) => setFormData({ ...formData, file_url: e.target.value })}
+                        placeholder="https://example.com/file.mp4"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        You can upload a file above or provide a direct URL to an external file.
+                      </p>
+                    </div>
+                  </div>
+                </TabsContent>
+              </Tabs>
+
+              <div className="flex justify-end gap-3 pt-4 border-t">
                 <Button type="button" variant="outline" onClick={() => setIsFormOpen(false)}>
                   Cancel
                 </Button>
