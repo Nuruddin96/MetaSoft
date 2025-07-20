@@ -39,8 +39,8 @@ const sidebarItems = [
     badge: "12 pending"
   },
   {
-    title: "Student Progress",
-    href: "/admin/students",
+    title: "Enrollments",
+    href: "/admin/enrollments",
     icon: GraduationCap,
     badge: null
   },

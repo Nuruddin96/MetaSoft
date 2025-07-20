@@ -136,8 +136,8 @@ export const CourseCard = ({
           </div>
           
           <Button size="sm" className="bg-gradient-primary hover:opacity-90" asChild>
-            <Link to={`/course/${id}`}>
-              View Details
+            <Link to={`/checkout/${id}`}>
+              Enroll Now
             </Link>
           </Button>
         </div>

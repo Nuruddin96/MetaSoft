@@ -8,12 +8,16 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Courses from "./pages/Courses";
 import CourseDetails from "./pages/CourseDetails";
+import Checkout from "./pages/Checkout";
+import Dashboard from "./pages/Dashboard";
+import EnrollmentSuccess from "./pages/EnrollmentSuccess";
 import Login from "./pages/Login";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import UserManagement from "./pages/admin/UserManagement";
 import CourseManagement from "./pages/admin/CourseManagement";
+import EnrollmentManagement from "./pages/admin/EnrollmentManagement";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +32,9 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/courses" element={<Courses />} />
             <Route path="/course/:id" element={<CourseDetails />} />
+            <Route path="/checkout/:id" element={<Checkout />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/success" element={<EnrollmentSuccess />} />
             <Route path="/login" element={<Login />} />
             <Route path="/auth" element={<Auth />} />
             <Route 
@@ -51,6 +58,14 @@ const App = () => (
               element={
                 <ProtectedRoute requireAdmin>
                   <CourseManagement />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/enrollments" 
+              element={
+                <ProtectedRoute requireAdmin>
+                  <EnrollmentManagement />
                 </ProtectedRoute>
               } 
             />

@@ -217,8 +217,8 @@ export default function CourseDetails() {
                     )}
                   </div>
                   
-                  <Button size="lg" className="w-full bg-gradient-primary hover:opacity-90">
-                    Enroll Now
+                  <Button size="lg" className="w-full bg-gradient-primary hover:opacity-90" asChild>
+                    <Link to={`/checkout/${course.id}`}>Enroll Now</Link>
                   </Button>
                 </div>
               </CardContent>
