@@ -16,6 +16,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { FileUpload } from './FileUpload';
+import { CourseMaterialsManager } from './CourseMaterialsManager';
 
 const courseSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -73,6 +74,7 @@ export const CourseForm = ({ course, categories, onSubmit, onCancel }: CourseFor
   const [newRequirement, setNewRequirement] = useState('');
   const [newLearning, setNewLearning] = useState('');
   const [newTag, setNewTag] = useState('');
+  const [createdCourseId, setCreatedCourseId] = useState<string | null>(null);
   const { toast } = useToast();
   const { profile } = useAuth();
 
@@ -180,15 +182,19 @@ export const CourseForm = ({ course, categories, onSubmit, onCancel }: CourseFor
         });
       } else {
         // Create new course
-        const { error } = await supabase
+        const { data: newCourse, error } = await supabase
           .from('courses')
-          .insert(courseData);
+          .insert(courseData)
+          .select('id')
+          .single();
 
         if (error) throw error;
 
+        setCreatedCourseId(newCourse.id);
+        
         toast({
           title: "Success",
-          description: "Course created successfully",
+          description: "Course created successfully. Now add course materials!",
         });
       }
 
@@ -227,9 +233,10 @@ export const CourseForm = ({ course, categories, onSubmit, onCancel }: CourseFor
   return (
     <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6">
       <Tabs defaultValue="basic" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="basic">Basic Info</TabsTrigger>
           <TabsTrigger value="content">Content</TabsTrigger>
+          <TabsTrigger value="materials">Materials</TabsTrigger>
           <TabsTrigger value="pricing">Pricing</TabsTrigger>
           <TabsTrigger value="settings">Settings</TabsTrigger>
         </TabsList>
@@ -445,6 +452,31 @@ export const CourseForm = ({ course, categories, onSubmit, onCancel }: CourseFor
                   ))}
                 </div>
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="materials" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Course Materials</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {course || createdCourseId ? (
+                <CourseMaterialsManager 
+                  courseId={course?.id || createdCourseId!} 
+                  courseName={watch('title') || 'New Course'}
+                />
+              ) : (
+                <div className="text-center py-8 border-2 border-dashed border-muted-foreground/25 rounded-lg">
+                  <p className="text-muted-foreground">
+                    Save the course first to add materials
+                  </p>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Fill in the basic information and create the course, then you can add videos, documents, and other materials.
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
