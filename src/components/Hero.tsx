@@ -4,7 +4,18 @@ import { Link } from "react-router-dom";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 export const Hero = () => {
-  const { settings } = useSiteSettings();
+  const { getSetting } = useSiteSettings();
+  
+  const heroEnabled = getSetting('hero_enabled') === 'true';
+  const heroTitle = getSetting('hero_title') || "Master E-commerce with MetaSoft BD";
+  const heroSubtitle = getSetting('hero_subtitle') || "Learn from Bangladesh's top e-commerce experts. Build your online business with our comprehensive video courses and expert guidance.";
+  const heroCtaText = getSetting('hero_cta_text') || "Explore Courses";
+  const heroCtaLink = getSetting('hero_cta_link') || "/courses";
+  const heroBackgroundImage = getSetting('hero_background_image');
+
+  if (!heroEnabled) {
+    return null;
+  }
   return (
     <section className="min-h-screen bg-gradient-hero relative overflow-hidden flex items-center">
       {/* Background decoration */}
@@ -20,11 +31,11 @@ export const Hero = () => {
             </div>
             
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight animate-slide-up">
-              {settings.hero_title || "Master E-commerce with MetaSoft BD"}
+              {heroTitle}
             </h1>
             
             <p className="text-xl text-white/90 mb-8 leading-relaxed animate-slide-up" style={{animationDelay: '0.2s'}}>
-              {settings.hero_subtitle || "Learn from Bangladesh's top e-commerce experts. Build your online business with our comprehensive video courses and expert guidance."}
+              {heroSubtitle}
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 mb-8 animate-slide-up" style={{animationDelay: '0.4s'}}>
@@ -33,9 +44,9 @@ export const Hero = () => {
                 className="bg-white text-primary hover:bg-white/90 shadow-glow transition-all duration-300 hover:scale-105"
                 asChild
               >
-                <Link to="/courses">
+                <Link to={heroCtaLink as string}>
                   <BookOpen className="h-5 w-5 mr-2" />
-                  {settings.hero_cta_text || "Explore Courses"}
+                  {heroCtaText}
                 </Link>
               </Button>
               

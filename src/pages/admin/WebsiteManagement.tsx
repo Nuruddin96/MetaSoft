@@ -14,7 +14,9 @@ interface WebsiteSettings {
   hero_title?: string;
   hero_subtitle?: string;
   hero_cta_text?: string;
+  hero_cta_link?: string;
   hero_background_image?: string;
+  hero_enabled?: boolean;
   footer_description?: string;
   footer_contact_email?: string;
   footer_contact_phone?: string;
@@ -174,6 +176,16 @@ export default function WebsiteManagement() {
                 <CardTitle>Hero Section Settings</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
+                <div className="flex items-center space-x-2 mb-4">
+                  <input
+                    type="checkbox"
+                    id="hero_enabled"
+                    checked={settings.hero_enabled || false}
+                    onChange={(e) => updateSetting('hero_enabled', e.target.checked)}
+                    className="rounded border-gray-300"
+                  />
+                  <Label htmlFor="hero_enabled">Enable Hero Section</Label>
+                </div>
                 <div>
                   <Label htmlFor="hero_title">Hero Title</Label>
                   <Input
@@ -193,14 +205,25 @@ export default function WebsiteManagement() {
                     rows={3}
                   />
                 </div>
-                <div>
-                  <Label htmlFor="hero_cta_text">Call to Action Text</Label>
-                  <Input
-                    id="hero_cta_text"
-                    value={settings.hero_cta_text || ''}
-                    onChange={(e) => updateSetting('hero_cta_text', e.target.value)}
-                    placeholder="Enter CTA button text"
-                  />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="hero_cta_text">Call to Action Text</Label>
+                    <Input
+                      id="hero_cta_text"
+                      value={settings.hero_cta_text || ''}
+                      onChange={(e) => updateSetting('hero_cta_text', e.target.value)}
+                      placeholder="Enter CTA button text"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="hero_cta_link">Call to Action Link</Label>
+                    <Input
+                      id="hero_cta_link"
+                      value={settings.hero_cta_link || ''}
+                      onChange={(e) => updateSetting('hero_cta_link', e.target.value)}
+                      placeholder="/courses"
+                    />
+                  </div>
                 </div>
                 <div>
                   <Label htmlFor="hero_background_image">Background Image URL</Label>
@@ -217,7 +240,7 @@ export default function WebsiteManagement() {
                   </div>
                 </div>
                 <Button 
-                  onClick={() => handleSaveSection(['hero_title', 'hero_subtitle', 'hero_cta_text', 'hero_background_image'])}
+                  onClick={() => handleSaveSection(['hero_enabled', 'hero_title', 'hero_subtitle', 'hero_cta_text', 'hero_cta_link', 'hero_background_image'])}
                   disabled={saving}
                   className="bg-gradient-primary hover:opacity-90"
                 >

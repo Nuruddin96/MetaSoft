@@ -5,7 +5,9 @@ interface SiteSettings {
   hero_title?: string;
   hero_subtitle?: string;
   hero_cta_text?: string;
+  hero_cta_link?: string;
   hero_background_image?: string;
+  hero_enabled?: string;
   footer_description?: string;
   footer_contact_email?: string;
   footer_contact_phone?: string;
@@ -39,11 +41,16 @@ export const useSiteSettings = () => {
 
       const settingsObj: SiteSettings = {};
       data?.forEach((setting) => {
-        if (setting.value && typeof setting.value === 'object' && !Array.isArray(setting.value)) {
-          const valueObj = setting.value as { [key: string]: any };
-          if ('value' in valueObj) {
-            (settingsObj as any)[setting.key] = valueObj.value;
+        // Handle string values that are JSON strings
+        if (typeof setting.value === 'string') {
+          try {
+            const parsed = JSON.parse(setting.value);
+            (settingsObj as any)[setting.key] = parsed;
+          } catch {
+            (settingsObj as any)[setting.key] = setting.value;
           }
+        } else {
+          (settingsObj as any)[setting.key] = setting.value;
         }
       });
 
@@ -55,5 +62,9 @@ export const useSiteSettings = () => {
     }
   };
 
-  return { settings, loading, refetch: fetchSettings };
+  const getSetting = (key: keyof SiteSettings) => {
+    return settings[key];
+  };
+
+  return { settings, loading, refetch: fetchSettings, getSetting };
 };
