@@ -362,21 +362,64 @@ export default function WebsiteManagement() {
           <TabsContent value="pages">
             <Card>
               <CardHeader>
-                <CardTitle>Page Management</CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle>Page Management</CardTitle>
+                  <Button 
+                    onClick={() => window.open('/admin/pages', '_blank')}
+                    className="bg-gradient-primary hover:opacity-90"
+                  >
+                    Open Page Manager
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="text-center py-8">
-                  <p className="text-muted-foreground mb-4">
-                    Page management functionality will be available soon. You can currently manage:
-                  </p>
-                  <ul className="text-sm space-y-2 text-left max-w-md mx-auto">
-                    <li>• Home page (Hero, Banner settings)</li>
-                    <li>• Footer content and contact information</li>
-                    <li>• Site branding and general settings</li>
-                  </ul>
-                  <p className="text-xs text-muted-foreground mt-4">
-                    Custom page creation feature coming in the next update
-                  </p>
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="space-y-3">
+                    <h4 className="font-semibold">What you can do:</h4>
+                    <ul className="text-sm space-y-2">
+                      <li className="flex items-center">
+                        <div className="w-2 h-2 bg-green-500 rounded-full mr-3" />
+                        Create custom pages (About, Terms, etc.)
+                      </li>
+                      <li className="flex items-center">
+                        <div className="w-2 h-2 bg-green-500 rounded-full mr-3" />
+                        Edit page content with HTML support
+                      </li>
+                      <li className="flex items-center">
+                        <div className="w-2 h-2 bg-green-500 rounded-full mr-3" />
+                        Control page visibility (publish/draft)
+                      </li>
+                      <li className="flex items-center">
+                        <div className="w-2 h-2 bg-green-500 rounded-full mr-3" />
+                        SEO meta descriptions
+                      </li>
+                      <li className="flex items-center">
+                        <div className="w-2 h-2 bg-green-500 rounded-full mr-3" />
+                        Custom URL slugs
+                      </li>
+                    </ul>
+                  </div>
+                  <div className="space-y-3">
+                    <h4 className="font-semibold">Quick Actions:</h4>
+                    <div className="space-y-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="w-full justify-start"
+                        onClick={() => window.open('/admin/pages', '_blank')}
+                      >
+                        View All Pages
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="w-full justify-start"
+                        onClick={() => window.open('/admin/pages', '_blank')}
+                      >
+                        Create New Page
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>

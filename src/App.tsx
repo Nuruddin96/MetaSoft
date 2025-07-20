@@ -24,6 +24,8 @@ import WebsiteManagement from "./pages/admin/WebsiteManagement";
 import CourseManagement from "./pages/admin/CourseManagement";
 import CourseDetailsManagement from "./pages/admin/CourseDetailsManagement";
 import EnrollmentManagement from "./pages/admin/EnrollmentManagement";
+import PageManagement from "./pages/admin/PageManagement";
+import CustomPage from "./pages/CustomPage";
 
 const queryClient = new QueryClient();
 
@@ -94,6 +96,16 @@ const AppContent = () => {
                 </ProtectedRoute>
               }
             />
+            <Route 
+              path="/admin/pages" 
+              element={
+                <ProtectedRoute requireAdmin>
+                  <PageManagement />
+                </ProtectedRoute>
+              }
+            />
+            {/* Custom pages route - must be at the end before catch-all */}
+            <Route path="/:slug" element={<CustomPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

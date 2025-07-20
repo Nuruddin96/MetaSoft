@@ -17,7 +17,8 @@ import {
   X,
   LogOut,
   Shield,
-  Globe
+  Globe,
+  FileText
 } from "lucide-react";
 
 const sidebarItems = [
@@ -37,6 +38,12 @@ const sidebarItems = [
     title: "Website",
     href: "/admin/website",
     icon: Globe,
+    badge: null
+  },
+  {
+    title: "Pages",
+    href: "/admin/pages",
+    icon: FileText,
     badge: null
   },
   {
