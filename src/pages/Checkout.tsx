@@ -128,6 +128,8 @@ export default function Checkout() {
       return;
     }
 
+    if (!course) return;
+
     setEnrolling(true);
 
     try {
@@ -142,45 +144,63 @@ export default function Checkout() {
         throw new Error('User profile not found');
       }
 
-      // Create enrollment
-      const { error: enrollmentError } = await supabase
-        .from('enrollments')
-        .insert({
-          course_id: id,
-          student_id: profile.id,
-          status: 'active',
-          progress: 0
+      const finalPrice = course.discounted_price || course.price;
+
+      // Check if course is free
+      if (finalPrice === 0) {
+        // Free course - direct enrollment
+        const { error: enrollmentError } = await supabase
+          .from('enrollments')
+          .insert({
+            course_id: id,
+            student_id: profile.id,
+            status: 'active',
+            progress: 0
+          });
+
+        if (enrollmentError) throw enrollmentError;
+
+        // Create payment record for free enrollment
+        await supabase
+          .from('payments')
+          .insert({
+            user_id: profile.id,
+            course_id: id,
+            amount: 0,
+            status: 'completed',
+            payment_method: 'free',
+            currency: 'BDT',
+            payment_date: new Date().toISOString()
+          });
+
+        toast({
+          title: "Enrollment Successful!",
+          description: "You have been successfully enrolled in this course",
         });
 
-      if (enrollmentError) throw enrollmentError;
-
-      // Create payment record (free enrollment)
-      const finalPrice = course?.discounted_price || course?.price || 0;
-      const { error: paymentError } = await supabase
-        .from('payments')
-        .insert({
-          user_id: profile.id,
-          course_id: id,
-          amount: finalPrice,
-          status: 'completed',
-          payment_method: 'free_enrollment',
-          currency: 'BDT',
-          payment_date: new Date().toISOString()
+        navigate(`/success?course=${encodeURIComponent(course.title)}`);
+      } else {
+        // Paid course - process SSLCommerz payment
+        const { data, error } = await supabase.functions.invoke('sslcommerz-payment', {
+          body: {
+            courseId: course.id,
+            amount: finalPrice,
+            currency: 'BDT'
+          }
         });
 
-      if (paymentError) throw paymentError;
+        if (error || !data?.success) {
+          throw new Error(data?.error || 'Payment initialization failed');
+        }
 
-      toast({
-        title: "Enrollment Successful!",
-        description: "You have been successfully enrolled in this course",
-      });
-
-      navigate(`/success?course=${encodeURIComponent(course.title)}`);
-    } catch (error) {
+        // Redirect to SSLCommerz payment page
+        window.location.href = data.payment_url;
+      }
+    } catch (error: any) {
       console.error('Error enrolling:', error);
       toast({
         title: "Enrollment Failed",
-        description: "Failed to enroll in the course. Please try again.",
+        description: error.message || "Failed to enroll in the course. Please try again.",
         variant: "destructive",
       });
     } finally {

@@ -15,6 +15,8 @@ import Checkout from "./pages/Checkout";
 import Dashboard from "./pages/Dashboard";
 import CourseLearning from "./pages/CourseLearning";
 import EnrollmentSuccess from "./pages/EnrollmentSuccess";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentFailed from "./pages/PaymentFailed";
 import Login from "./pages/Login";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
@@ -46,6 +48,9 @@ const AppContent = () => {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/learn/:id" element={<CourseLearning />} />
             <Route path="/success" element={<EnrollmentSuccess />} />
+            <Route path="/payment/success" element={<PaymentSuccess />} />
+            <Route path="/payment/failed" element={<PaymentFailed />} />
+            <Route path="/payment/cancelled" element={<PaymentFailed />} />
             <Route path="/login" element={<Login />} />
             <Route path="/auth" element={<Auth />} />
             <Route 
