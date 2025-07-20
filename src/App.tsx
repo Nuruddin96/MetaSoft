@@ -10,6 +10,7 @@ import Courses from "./pages/Courses";
 import CourseDetails from "./pages/CourseDetails";
 import Checkout from "./pages/Checkout";
 import Dashboard from "./pages/Dashboard";
+import CourseLearning from "./pages/CourseLearning";
 import EnrollmentSuccess from "./pages/EnrollmentSuccess";
 import Login from "./pages/Login";
 import Auth from "./pages/Auth";
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/course/:id" element={<CourseDetails />} />
             <Route path="/checkout/:id" element={<Checkout />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/learn/:id" element={<CourseLearning />} />
             <Route path="/success" element={<EnrollmentSuccess />} />
             <Route path="/login" element={<Login />} />
             <Route path="/auth" element={<Auth />} />

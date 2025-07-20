@@ -316,7 +316,7 @@ export default function Dashboard() {
 
                       <div className="flex gap-2">
                         <Button size="sm" className="flex-1" asChild>
-                          <Link to={`/course/${enrollment.courses.id}`}>
+                          <Link to={`/learn/${enrollment.courses.id}`}>
                             {enrollment.progress > 0 ? "Continue" : "Start"} Learning
                           </Link>
                         </Button>
