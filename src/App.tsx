@@ -104,6 +104,14 @@ const AppContent = () => {
                 </ProtectedRoute>
               }
             />
+            <Route 
+              path="/admin/settings" 
+              element={
+                <ProtectedRoute requireAdmin>
+                  <WebsiteManagement />
+                </ProtectedRoute>
+              }
+            />
             {/* Custom pages route - must be at the end before catch-all */}
             <Route path="/:slug" element={<CustomPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
