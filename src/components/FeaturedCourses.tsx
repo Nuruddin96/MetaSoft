@@ -59,7 +59,7 @@ export const FeaturedCourses = () => {
         .limit(6);
 
       if (error) throw error;
-      setCourses(data || []);
+      setCourses((data || []) as Course[]);
     } catch (error) {
       console.error('Error fetching featured courses:', error);
       toast({
