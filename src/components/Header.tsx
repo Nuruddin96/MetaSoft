@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, BookOpen, User, ShoppingCart } from "lucide-react";
+import { Menu, X, BookOpen, User, ShoppingCart, LogOut } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, signOut, isAdmin } = useAuth();
 
   return (
     <header className="bg-card/80 backdrop-blur-md border-b border-border/50 sticky top-0 z-50">
@@ -50,21 +52,45 @@ export const Header = () => {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-4">
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/cart">
-                <ShoppingCart className="h-4 w-4 mr-2" />
-                Cart
-              </Link>
-            </Button>
-            <Button variant="outline" size="sm" asChild>
-              <Link to="/login">
-                <User className="h-4 w-4 mr-2" />
-                Login
-              </Link>
-            </Button>
-            <Button size="sm" className="bg-gradient-primary hover:opacity-90 transition-opacity" asChild>
-              <Link to="/register">Sign Up</Link>
-            </Button>
+            {user ? (
+              <>
+                <Button variant="ghost" size="sm" asChild>
+                  <Link to="/cart">
+                    <ShoppingCart className="h-4 w-4 mr-2" />
+                    Cart
+                  </Link>
+                </Button>
+                {isAdmin && (
+                  <Button variant="outline" size="sm" asChild>
+                    <Link to="/admin">
+                      Admin Panel
+                    </Link>
+                  </Button>
+                )}
+                <Button variant="outline" size="sm" onClick={signOut}>
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Sign Out
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="ghost" size="sm" asChild>
+                  <Link to="/cart">
+                    <ShoppingCart className="h-4 w-4 mr-2" />
+                    Cart
+                  </Link>
+                </Button>
+                <Button variant="outline" size="sm" asChild>
+                  <Link to="/auth">
+                    <User className="h-4 w-4 mr-2" />
+                    Login
+                  </Link>
+                </Button>
+                <Button size="sm" className="bg-gradient-primary hover:opacity-90 transition-opacity" asChild>
+                  <Link to="/auth">Sign Up</Link>
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -111,17 +137,35 @@ export const Header = () => {
                 Contact
               </Link>
               <div className="flex flex-col space-y-2 pt-4">
-                <Button variant="outline" size="sm" asChild>
-                  <Link to="/login" onClick={() => setIsMenuOpen(false)}>
-                    <User className="h-4 w-4 mr-2" />
-                    Login
-                  </Link>
-                </Button>
-                <Button size="sm" className="bg-gradient-primary hover:opacity-90 transition-opacity" asChild>
-                  <Link to="/register" onClick={() => setIsMenuOpen(false)}>
-                    Sign Up
-                  </Link>
-                </Button>
+                {user ? (
+                  <>
+                    {isAdmin && (
+                      <Button variant="outline" size="sm" asChild>
+                        <Link to="/admin" onClick={() => setIsMenuOpen(false)}>
+                          Admin Panel
+                        </Link>
+                      </Button>
+                    )}
+                    <Button variant="outline" size="sm" onClick={() => { signOut(); setIsMenuOpen(false); }}>
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Sign Out
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button variant="outline" size="sm" asChild>
+                      <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
+                        <User className="h-4 w-4 mr-2" />
+                        Login
+                      </Link>
+                    </Button>
+                    <Button size="sm" className="bg-gradient-primary hover:opacity-90 transition-opacity" asChild>
+                      <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
+                        Sign Up
+                      </Link>
+                    </Button>
+                  </>
+                )}
               </div>
             </nav>
           </div>

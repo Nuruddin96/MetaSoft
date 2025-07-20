@@ -10,12 +10,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Menu, Search, Bell, User, Settings, LogOut } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 interface AdminHeaderProps {
   onMenuToggle: () => void;
 }
 
 export const AdminHeader = ({ onMenuToggle }: AdminHeaderProps) => {
+  const { profile, signOut } = useAuth();
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60 px-4 lg:px-6">
       {/* Mobile menu button */}
@@ -96,8 +98,8 @@ export const AdminHeader = ({ onMenuToggle }: AdminHeaderProps) => {
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>
               <div>
-                <p className="font-medium">Admin User</p>
-                <p className="text-xs text-muted-foreground">admin@metasoftbd.com</p>
+                <p className="font-medium">{profile?.full_name || 'Admin User'}</p>
+                <p className="text-xs text-muted-foreground">{profile?.email}</p>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
@@ -110,7 +112,7 @@ export const AdminHeader = ({ onMenuToggle }: AdminHeaderProps) => {
               Settings
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={signOut}>
               <LogOut className="h-4 w-4 mr-2" />
               Sign Out
             </DropdownMenuItem>
