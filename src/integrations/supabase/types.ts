@@ -43,6 +43,7 @@ export type Database = {
       }
       course_materials: {
         Row: {
+          content_type: string | null
           course_id: string
           created_at: string
           description: string | null
@@ -51,12 +52,18 @@ export type Database = {
           file_url: string | null
           id: string
           is_free: boolean | null
+          is_preview: boolean | null
           lesson_id: string | null
           order_index: number
+          thumbnail_url: string | null
           title: string
+          transcript: string | null
           type: string
+          video_id: string | null
+          video_platform: string | null
         }
         Insert: {
+          content_type?: string | null
           course_id: string
           created_at?: string
           description?: string | null
@@ -65,12 +72,18 @@ export type Database = {
           file_url?: string | null
           id?: string
           is_free?: boolean | null
+          is_preview?: boolean | null
           lesson_id?: string | null
           order_index: number
+          thumbnail_url?: string | null
           title: string
+          transcript?: string | null
           type: string
+          video_id?: string | null
+          video_platform?: string | null
         }
         Update: {
+          content_type?: string | null
           course_id?: string
           created_at?: string
           description?: string | null
@@ -79,10 +92,15 @@ export type Database = {
           file_url?: string | null
           id?: string
           is_free?: boolean | null
+          is_preview?: boolean | null
           lesson_id?: string | null
           order_index?: number
+          thumbnail_url?: string | null
           title?: string
+          transcript?: string | null
           type?: string
+          video_id?: string | null
+          video_platform?: string | null
         }
         Relationships: [
           {

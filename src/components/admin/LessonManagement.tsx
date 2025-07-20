@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
 import { 
   Plus, 
   Edit, 
@@ -20,7 +20,24 @@ import {
   X
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+
+interface CourseMaterial {
+  id: string;
+  title: string;
+  type: string;
+  duration_minutes?: number;
+  order_index: number;
+  is_free: boolean;
+  file_url?: string;
+  description?: string;
+  lesson_id?: string;
+  video_id?: string;
+  video_platform?: string;
+  content_type?: string;
+  thumbnail_url?: string;
+  transcript?: string;
+  is_preview?: boolean;
+}
 
 interface Lesson {
   id: string;
@@ -34,23 +51,11 @@ interface Lesson {
   sub_lessons: Lesson[];
 }
 
-interface CourseMaterial {
-  id: string;
-  title: string;
-  type: string;
-  duration_minutes?: number;
-  order_index: number;
-  is_free: boolean;
-  file_url?: string;
-  description?: string;
-  lesson_id?: string;
-}
-
 interface LessonManagementProps {
   courseId: string;
 }
 
-export default function LessonManagement({ courseId }: LessonManagementProps) {
+export const LessonManagement = ({ courseId }: LessonManagementProps) => {
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [expandedLessons, setExpandedLessons] = useState<Set<string>>(new Set());
   const [editingLesson, setEditingLesson] = useState<string | null>(null);
@@ -60,7 +65,6 @@ export default function LessonManagement({ courseId }: LessonManagementProps) {
     parent_lesson_id: null as string | null 
   });
   const [showNewLesson, setShowNewLesson] = useState(false);
-  const { toast } = useToast();
 
   useEffect(() => {
     fetchLessons();
@@ -124,11 +128,7 @@ export default function LessonManagement({ courseId }: LessonManagementProps) {
       setLessons(rootLessons);
     } catch (error) {
       console.error('Error fetching lessons:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load lessons",
-        variant: "destructive",
-      });
+      toast.error('Failed to load lessons');
     }
   };
 
@@ -168,21 +168,14 @@ export default function LessonManagement({ courseId }: LessonManagementProps) {
 
       if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: "Lesson created successfully",
-      });
+      toast.success('Lesson created successfully');
 
       setNewLesson({ title: '', description: '', parent_lesson_id: null });
       setShowNewLesson(false);
       fetchLessons();
     } catch (error) {
       console.error('Error creating lesson:', error);
-      toast({
-        title: "Error",
-        description: "Failed to create lesson",
-        variant: "destructive",
-      });
+      toast.error('Failed to create lesson');
     }
   };
 
@@ -195,19 +188,12 @@ export default function LessonManagement({ courseId }: LessonManagementProps) {
 
       if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: "Lesson deleted successfully",
-      });
+      toast.success('Lesson deleted successfully');
 
       fetchLessons();
     } catch (error) {
       console.error('Error deleting lesson:', error);
-      toast({
-        title: "Error",
-        description: "Failed to delete lesson",
-        variant: "destructive",
-      });
+      toast.error('Failed to delete lesson');
     }
   };
 
