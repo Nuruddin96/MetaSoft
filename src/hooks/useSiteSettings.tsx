@@ -14,6 +14,11 @@ interface SiteSettings {
   banner_enabled?: boolean;
   site_name?: string;
   site_description?: string;
+  social_facebook?: string;
+  social_instagram?: string;
+  social_youtube?: string;
+  social_linkedin?: string;
+  social_twitter?: string;
 }
 
 export const useSiteSettings = () => {

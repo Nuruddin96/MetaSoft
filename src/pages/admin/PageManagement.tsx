@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { Plus, Edit, Trash2, Eye, Save } from "lucide-react";
+import { Plus, Edit, Trash2, Eye, Save, Image, Video, LayoutIcon, X } from "lucide-react";
 
 interface CustomPage {
   id: string;
@@ -22,6 +22,13 @@ interface CustomPage {
   is_published: boolean;
   created_at: string;
   updated_at: string;
+  banner_enabled?: boolean;
+  banner_url?: string;
+  banner_title?: string;
+  images_enabled?: boolean;
+  images?: string[];
+  videos_enabled?: boolean;
+  videos?: string[];
 }
 
 interface PageFormData {
@@ -30,6 +37,13 @@ interface PageFormData {
   content: string;
   meta_description: string;
   is_published: boolean;
+  banner_enabled: boolean;
+  banner_url: string;
+  banner_title: string;
+  images_enabled: boolean;
+  images: string[];
+  videos_enabled: boolean;
+  videos: string[];
 }
 
 export default function PageManagement() {
@@ -43,7 +57,14 @@ export default function PageManagement() {
     slug: '',
     content: '',
     meta_description: '',
-    is_published: false
+    is_published: false,
+    banner_enabled: false,
+    banner_url: '',
+    banner_title: '',
+    images_enabled: false,
+    images: [],
+    videos_enabled: false,
+    videos: []
   });
 
   useEffect(() => {
@@ -140,7 +161,14 @@ export default function PageManagement() {
       slug: page.slug,
       content: page.content || '',
       meta_description: page.meta_description || '',
-      is_published: page.is_published
+      is_published: page.is_published,
+      banner_enabled: page.banner_enabled || false,
+      banner_url: page.banner_url || '',
+      banner_title: page.banner_title || '',
+      images_enabled: page.images_enabled || false,
+      images: page.images || [],
+      videos_enabled: page.videos_enabled || false,
+      videos: page.videos || []
     });
     setDialogOpen(true);
   };
@@ -170,9 +198,58 @@ export default function PageManagement() {
       slug: '',
       content: '',
       meta_description: '',
-      is_published: false
+      is_published: false,
+      banner_enabled: false,
+      banner_url: '',
+      banner_title: '',
+      images_enabled: false,
+      images: [],
+      videos_enabled: false,
+      videos: []
     });
     setEditingPage(null);
+  };
+
+  const addImage = () => {
+    setFormData(prev => ({
+      ...prev,
+      images: [...prev.images, '']
+    }));
+  };
+
+  const removeImage = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index)
+    }));
+  };
+
+  const updateImage = (index: number, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      images: prev.images.map((img, i) => i === index ? value : img)
+    }));
+  };
+
+  const addVideo = () => {
+    setFormData(prev => ({
+      ...prev,
+      videos: [...prev.videos, '']
+    }));
+  };
+
+  const removeVideo = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      videos: prev.videos.filter((_, i) => i !== index)
+    }));
+  };
+
+  const updateVideo = (index: number, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      videos: prev.videos.map((vid, i) => i === index ? value : vid)
+    }));
   };
 
   const handleNewPage = () => {
@@ -263,6 +340,138 @@ export default function PageManagement() {
                   <p className="text-xs text-muted-foreground mt-1">
                     You can use plain text or basic HTML. Markdown support coming soon.
                   </p>
+                </div>
+
+                {/* Media Elements Section */}
+                <div className="space-y-6 border-t pt-6">
+                  <h3 className="text-lg font-semibold">Media Elements</h3>
+                  
+                  {/* Banner Section */}
+                  <div className="space-y-4 p-4 border rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <LayoutIcon className="h-5 w-5" />
+                        <Label className="text-base font-medium">Banner</Label>
+                      </div>
+                      <Switch
+                        checked={formData.banner_enabled}
+                        onCheckedChange={(checked) => setFormData(prev => ({ ...prev, banner_enabled: checked }))}
+                      />
+                    </div>
+                    {formData.banner_enabled && (
+                      <div className="space-y-3">
+                        <div>
+                          <Label htmlFor="banner_title">Banner Title</Label>
+                          <Input
+                            id="banner_title"
+                            value={formData.banner_title}
+                            onChange={(e) => setFormData(prev => ({ ...prev, banner_title: e.target.value }))}
+                            placeholder="Enter banner title"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="banner_url">Banner Image URL</Label>
+                          <Input
+                            id="banner_url"
+                            value={formData.banner_url}
+                            onChange={(e) => setFormData(prev => ({ ...prev, banner_url: e.target.value }))}
+                            placeholder="https://example.com/banner.jpg"
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Images Section */}
+                  <div className="space-y-4 p-4 border rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <Image className="h-5 w-5" />
+                        <Label className="text-base font-medium">Images</Label>
+                      </div>
+                      <Switch
+                        checked={formData.images_enabled}
+                        onCheckedChange={(checked) => setFormData(prev => ({ ...prev, images_enabled: checked }))}
+                      />
+                    </div>
+                    {formData.images_enabled && (
+                      <div className="space-y-3">
+                        {formData.images.map((image, index) => (
+                          <div key={index} className="flex space-x-2">
+                            <Input
+                              value={image}
+                              onChange={(e) => updateImage(index, e.target.value)}
+                              placeholder="https://example.com/image.jpg"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => removeImage(index)}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ))}
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={addImage}
+                        >
+                          <Plus className="h-4 w-4 mr-2" />
+                          Add Image
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Videos Section */}
+                  <div className="space-y-4 p-4 border rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <Video className="h-5 w-5" />
+                        <Label className="text-base font-medium">Videos</Label>
+                      </div>
+                      <Switch
+                        checked={formData.videos_enabled}
+                        onCheckedChange={(checked) => setFormData(prev => ({ ...prev, videos_enabled: checked }))}
+                      />
+                    </div>
+                    {formData.videos_enabled && (
+                      <div className="space-y-3">
+                        {formData.videos.map((video, index) => (
+                          <div key={index} className="flex space-x-2">
+                            <Input
+                              value={video}
+                              onChange={(e) => updateVideo(index, e.target.value)}
+                              placeholder="https://youtube.com/embed/VIDEO_ID or video URL"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => removeVideo(index)}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ))}
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={addVideo}
+                        >
+                          <Plus className="h-4 w-4 mr-2" />
+                          Add Video
+                        </Button>
+                        <p className="text-xs text-muted-foreground">
+                          You can add YouTube embed URLs or direct video file URLs
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div className="flex items-center space-x-2">

@@ -23,6 +23,11 @@ interface WebsiteSettings {
   banner_enabled?: boolean;
   site_name?: string;
   site_description?: string;
+  social_facebook?: string;
+  social_instagram?: string;
+  social_youtube?: string;
+  social_linkedin?: string;
+  social_twitter?: string;
 }
 
 export default function WebsiteManagement() {
@@ -153,10 +158,11 @@ export default function WebsiteManagement() {
         </div>
 
         <Tabs defaultValue="hero" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="hero">Hero Section</TabsTrigger>
             <TabsTrigger value="footer">Footer</TabsTrigger>
             <TabsTrigger value="banner">Banner</TabsTrigger>
+            <TabsTrigger value="social">Social Media</TabsTrigger>
             <TabsTrigger value="general">General</TabsTrigger>
             <TabsTrigger value="pages">Pages</TabsTrigger>
           </TabsList>
@@ -277,6 +283,70 @@ export default function WebsiteManagement() {
                 >
                   <Save className="h-4 w-4 mr-2" />
                   Save Footer
+                </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Social Media */}
+          <TabsContent value="social">
+            <Card>
+              <CardHeader>
+                <CardTitle>Social Media Links</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <Label htmlFor="social_facebook">Facebook Page URL</Label>
+                  <Input
+                    id="social_facebook"
+                    value={settings.social_facebook || ''}
+                    onChange={(e) => updateSetting('social_facebook', e.target.value)}
+                    placeholder="https://facebook.com/yourpage"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="social_instagram">Instagram Profile URL</Label>
+                  <Input
+                    id="social_instagram"
+                    value={settings.social_instagram || ''}
+                    onChange={(e) => updateSetting('social_instagram', e.target.value)}
+                    placeholder="https://instagram.com/yourprofile"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="social_youtube">YouTube Channel URL</Label>
+                  <Input
+                    id="social_youtube"
+                    value={settings.social_youtube || ''}
+                    onChange={(e) => updateSetting('social_youtube', e.target.value)}
+                    placeholder="https://youtube.com/c/yourchannel"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="social_linkedin">LinkedIn Page URL</Label>
+                  <Input
+                    id="social_linkedin"
+                    value={settings.social_linkedin || ''}
+                    onChange={(e) => updateSetting('social_linkedin', e.target.value)}
+                    placeholder="https://linkedin.com/company/yourcompany"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="social_twitter">Twitter/X Profile URL</Label>
+                  <Input
+                    id="social_twitter"
+                    value={settings.social_twitter || ''}
+                    onChange={(e) => updateSetting('social_twitter', e.target.value)}
+                    placeholder="https://twitter.com/yourhandle"
+                  />
+                </div>
+                <Button 
+                  onClick={() => handleSaveSection(['social_facebook', 'social_instagram', 'social_youtube', 'social_linkedin', 'social_twitter'])}
+                  disabled={saving}
+                  className="bg-gradient-primary hover:opacity-90"
+                >
+                  <Save className="h-4 w-4 mr-2" />
+                  Save Social Media Links
                 </Button>
               </CardContent>
             </Card>

@@ -238,37 +238,58 @@ export type Database = {
       }
       custom_pages: {
         Row: {
+          banner_enabled: boolean | null
+          banner_title: string | null
+          banner_url: string | null
           content: string | null
           created_at: string | null
           created_by: string | null
           id: string
+          images: string[] | null
+          images_enabled: boolean | null
           is_published: boolean | null
           meta_description: string | null
           slug: string
           title: string
           updated_at: string | null
+          videos: string[] | null
+          videos_enabled: boolean | null
         }
         Insert: {
+          banner_enabled?: boolean | null
+          banner_title?: string | null
+          banner_url?: string | null
           content?: string | null
           created_at?: string | null
           created_by?: string | null
           id?: string
+          images?: string[] | null
+          images_enabled?: boolean | null
           is_published?: boolean | null
           meta_description?: string | null
           slug: string
           title: string
           updated_at?: string | null
+          videos?: string[] | null
+          videos_enabled?: boolean | null
         }
         Update: {
+          banner_enabled?: boolean | null
+          banner_title?: string | null
+          banner_url?: string | null
           content?: string | null
           created_at?: string | null
           created_by?: string | null
           id?: string
+          images?: string[] | null
+          images_enabled?: boolean | null
           is_published?: boolean | null
           meta_description?: string | null
           slug?: string
           title?: string
           updated_at?: string | null
+          videos?: string[] | null
+          videos_enabled?: boolean | null
         }
         Relationships: [
           {

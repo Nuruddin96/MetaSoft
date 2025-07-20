@@ -1,7 +1,6 @@
-import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useParams, Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
 
 interface CustomPage {
   id: string;
@@ -10,10 +9,19 @@ interface CustomPage {
   content?: string;
   meta_description?: string;
   is_published: boolean;
+  created_at: string;
+  updated_at: string;
+  banner_enabled?: boolean;
+  banner_url?: string;
+  banner_title?: string;
+  images_enabled?: boolean;
+  images?: string[];
+  videos_enabled?: boolean;
+  videos?: string[];
 }
 
 export default function CustomPage() {
-  const { slug } = useParams();
+  const { slug } = useParams<{ slug: string }>();
   const [page, setPage] = useState<CustomPage | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
@@ -50,7 +58,6 @@ export default function CustomPage() {
       }
     } catch (error) {
       console.error('Error fetching page:', error);
-      toast.error('Failed to load page');
       setNotFound(true);
     } finally {
       setLoading(false);
@@ -69,41 +76,84 @@ export default function CustomPage() {
   }
 
   if (notFound || !page) {
-    return (
-      <div className="min-h-screen bg-gradient-subtle flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold mb-4">Page Not Found</h1>
-          <p className="text-muted-foreground mb-6">
-            The page you're looking for doesn't exist or isn't published yet.
-          </p>
-          <a 
-            href="/" 
-            className="inline-flex items-center px-4 py-2 bg-primary text-primary-foreground rounded-md hover:opacity-90 transition-opacity"
-          >
-            Back to Home
-          </a>
-        </div>
-      </div>
-    );
+    return <Navigate to="/404" replace />;
   }
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
-      <div className="container mx-auto px-4 py-12">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl font-bold mb-6">{page.title}</h1>
-          <div className="prose prose-lg max-w-none">
-            {page.content ? (
-              <div 
-                className="text-muted-foreground leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: page.content.replace(/\n/g, '<br>') }}
+    <main className="container mx-auto px-4 py-8 max-w-4xl">
+        <article className="space-y-8">
+          {/* Banner Section */}
+          {page.banner_enabled && page.banner_url && (
+            <div className="relative w-full h-64 md:h-96 rounded-lg overflow-hidden mb-8">
+              <img 
+                src={page.banner_url} 
+                alt={page.banner_title || page.title}
+                className="w-full h-full object-cover"
               />
-            ) : (
-              <p className="text-muted-foreground">No content available for this page.</p>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
+              {page.banner_title && (
+                <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                  <h1 className="text-white text-4xl md:text-6xl font-bold text-center">{page.banner_title}</h1>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Page Title (if no banner or no banner title) */}
+          {(!page.banner_enabled || !page.banner_title) && (
+            <h1 className="text-4xl font-bold mb-8">{page.title}</h1>
+          )}
+
+          {/* Content */}
+          <div 
+            className="prose prose-lg max-w-none text-muted-foreground leading-relaxed"
+            dangerouslySetInnerHTML={{ __html: page.content || '' }}
+          />
+
+          {/* Images Section */}
+          {page.images_enabled && page.images && page.images.length > 0 && (
+            <div className="space-y-4">
+              <h2 className="text-2xl font-semibold">Gallery</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {page.images.filter(Boolean).map((image, index) => (
+                  <div key={index} className="relative aspect-video rounded-lg overflow-hidden">
+                    <img 
+                      src={image} 
+                      alt={`Gallery image ${index + 1}`}
+                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Videos Section */}
+          {page.videos_enabled && page.videos && page.videos.length > 0 && (
+            <div className="space-y-4">
+              <h2 className="text-2xl font-semibold">Videos</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {page.videos.filter(Boolean).map((video, index) => (
+                  <div key={index} className="aspect-video rounded-lg overflow-hidden">
+                    {video.includes('youtube.com') || video.includes('youtu.be') ? (
+                      <iframe
+                        src={video.replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/')}
+                        title={`Video ${index + 1}`}
+                        className="w-full h-full"
+                        allowFullScreen
+                      />
+                    ) : (
+                      <video
+                        src={video}
+                        controls
+                        className="w-full h-full object-cover"
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </article>
+      </main>
   );
 }

@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { BookOpen, Facebook, Instagram, Youtube, Mail, Phone } from "lucide-react";
+import { BookOpen, Facebook, Instagram, Youtube, Mail, Phone, Linkedin, Twitter } from "lucide-react";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 export const Footer = () => {
@@ -26,21 +26,66 @@ export const Footer = () => {
             <h3 className="font-semibold mb-4">Quick Links</h3>
             <ul className="space-y-2 text-sm">
               <li><Link to="/courses" className="text-background/80 hover:text-background transition-colors">All Courses</Link></li>
-              <li><Link to="/categories" className="text-background/80 hover:text-background transition-colors">Categories</Link></li>
-              <li><Link to="/instructors" className="text-background/80 hover:text-background transition-colors">Instructors</Link></li>
-              <li><Link to="/about" className="text-background/80 hover:text-background transition-colors">About Us</Link></li>
+              <li><Link to="/dashboard" className="text-background/80 hover:text-background transition-colors">Dashboard</Link></li>
+              <li><Link to="/auth" className="text-background/80 hover:text-background transition-colors">Sign In</Link></li>
             </ul>
           </div>
 
-          {/* Support */}
+          {/* Connect */}
           <div>
-            <h3 className="font-semibold mb-4">Support</h3>
-            <ul className="space-y-2 text-sm">
-              <li><Link to="/help" className="text-background/80 hover:text-background transition-colors">Help Center</Link></li>
-              <li><Link to="/contact" className="text-background/80 hover:text-background transition-colors">Contact Us</Link></li>
-              <li><Link to="/privacy" className="text-background/80 hover:text-background transition-colors">Privacy Policy</Link></li>
-              <li><Link to="/terms" className="text-background/80 hover:text-background transition-colors">Terms of Service</Link></li>
-            </ul>
+            <h3 className="font-semibold mb-4">Connect</h3>
+            <div className="flex space-x-4">
+              {settings.social_facebook && settings.social_facebook !== '""' && (
+                <a
+                  href={JSON.parse(settings.social_facebook)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-background/80 hover:text-background transition-colors"
+                >
+                  <Facebook className="h-5 w-5" />
+                </a>
+              )}
+              {settings.social_instagram && settings.social_instagram !== '""' && (
+                <a
+                  href={JSON.parse(settings.social_instagram)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-background/80 hover:text-background transition-colors"
+                >
+                  <Instagram className="h-5 w-5" />
+                </a>
+              )}
+              {settings.social_youtube && settings.social_youtube !== '""' && (
+                <a
+                  href={JSON.parse(settings.social_youtube)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-background/80 hover:text-background transition-colors"
+                >
+                  <Youtube className="h-5 w-5" />
+                </a>
+              )}
+              {settings.social_linkedin && settings.social_linkedin !== '""' && (
+                <a
+                  href={JSON.parse(settings.social_linkedin)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-background/80 hover:text-background transition-colors"
+                >
+                  <Linkedin className="h-5 w-5" />
+                </a>
+              )}
+              {settings.social_twitter && settings.social_twitter !== '""' && (
+                <a
+                  href={JSON.parse(settings.social_twitter)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-background/80 hover:text-background transition-colors"
+                >
+                  <Twitter className="h-5 w-5" />
+                </a>
+              )}
+            </div>
           </div>
 
           {/* Contact */}
@@ -60,11 +105,6 @@ export const Footer = () => {
                   {settings.footer_address}
                 </div>
               )}
-              <div className="flex space-x-4 mt-4">
-                <Facebook className="h-5 w-5 text-background/80 hover:text-background transition-colors cursor-pointer" />
-                <Instagram className="h-5 w-5 text-background/80 hover:text-background transition-colors cursor-pointer" />
-                <Youtube className="h-5 w-5 text-background/80 hover:text-background transition-colors cursor-pointer" />
-              </div>
             </div>
           </div>
         </div>
