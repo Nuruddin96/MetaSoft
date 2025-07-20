@@ -132,20 +132,48 @@ export const CourseForm = ({ course, categories, onSubmit, onCancel }: CourseFor
     }
   }, [course, reset]);
 
-  const generateSlug = (title: string) => {
-    return title
+  const generateSlug = async (title: string) => {
+    const baseSlug = title
       .toLowerCase()
       .replace(/[^a-z0-9 -]/g, '')
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-')
       .trim();
+    
+    // Check if slug exists and make it unique
+    let slug = baseSlug;
+    let counter = 1;
+    
+    while (true) {
+      const { data, error } = await supabase
+        .from('courses')
+        .select('id')
+        .eq('slug', slug)
+        .maybeSingle();
+      
+      if (error) {
+        console.error('Error checking slug:', error);
+        break;
+      }
+      
+      // If no existing course with this slug, or it's the current course being edited
+      if (!data || (course && data.id === course.id)) {
+        break;
+      }
+      
+      // Generate new slug with counter
+      slug = `${baseSlug}-${counter}`;
+      counter++;
+    }
+    
+    return slug;
   };
 
   const onFormSubmit = async (data: CourseFormData) => {
     setLoading(true);
     
     try {
-      const slug = generateSlug(data.title);
+      const slug = await generateSlug(data.title);
       
       const courseData = {
         title: data.title,
