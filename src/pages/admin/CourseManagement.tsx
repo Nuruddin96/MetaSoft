@@ -367,6 +367,13 @@ const CourseManagement = () => {
                     <Button
                       variant="outline"
                       size="sm"
+                      onClick={() => window.location.href = `/admin/courses/${course.id}`}
+                    >
+                      Manage
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
                       onClick={() => {
                         setEditingCourse(course);
                         setIsFormOpen(true);

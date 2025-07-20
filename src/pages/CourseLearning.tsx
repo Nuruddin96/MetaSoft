@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, Play, CheckCircle, Lock, FileText, Video, Download } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { ArrowLeft, Play, CheckCircle, Lock, FileText, Video, Download, ChevronRight, ChevronDown, FolderOpen, Folder } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
@@ -13,12 +14,24 @@ import { useAuth } from "@/hooks/useAuth";
 interface CourseMaterial {
   id: string;
   title: string;
-  type: 'video' | 'document' | 'quiz' | 'assignment';
+  type: string;
   duration_minutes?: number;
   order_index: number;
   is_free: boolean;
   file_url?: string;
   description?: string;
+  lesson_id?: string;
+}
+
+interface Lesson {
+  id: string;
+  title: string;
+  description?: string;
+  order_index: number;
+  parent_lesson_id?: string;
+  is_published: boolean;
+  materials: CourseMaterial[];
+  sub_lessons: Lesson[];
 }
 
 interface Course {
@@ -34,9 +47,11 @@ export default function CourseLearning() {
   const { id } = useParams();
   const { user } = useAuth();
   const [course, setCourse] = useState<Course | null>(null);
-  const [materials, setMaterials] = useState<CourseMaterial[]>([]);
+  const [lessons, setLessons] = useState<Lesson[]>([]);
+  const [legacyMaterials, setLegacyMaterials] = useState<CourseMaterial[]>([]);
   const [currentMaterial, setCurrentMaterial] = useState<CourseMaterial | null>(null);
   const [enrollment, setEnrollment] = useState<any>(null);
+  const [expandedLessons, setExpandedLessons] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
@@ -91,6 +106,13 @@ export default function CourseLearning() {
 
       setCourse(courseData);
 
+      // Fetch lessons
+      const { data: lessonsData } = await supabase
+        .from('lessons')
+        .select('*')
+        .eq('course_id', id)
+        .order('order_index');
+
       // Fetch course materials
       const { data: materialsData } = await supabase
         .from('course_materials')
@@ -98,11 +120,51 @@ export default function CourseLearning() {
         .eq('course_id', id)
         .order('order_index');
 
-      setMaterials((materialsData || []) as CourseMaterial[]);
+      // Organize lessons with materials
+      const lessonMap = new Map<string, Lesson>();
       
-      // Set first material as current
-      if (materialsData && materialsData.length > 0) {
-        setCurrentMaterial(materialsData[0] as CourseMaterial);
+      // Create lesson objects
+      lessonsData?.forEach(lesson => {
+        lessonMap.set(lesson.id, {
+          ...lesson,
+          materials: [],
+          sub_lessons: []
+        });
+      });
+
+      // Add materials to lessons or legacy materials
+      const legacyMats: CourseMaterial[] = [];
+      materialsData?.forEach(material => {
+        if (material.lesson_id && lessonMap.has(material.lesson_id)) {
+          const lesson = lessonMap.get(material.lesson_id);
+          if (lesson) {
+            lesson.materials.push(material);
+          }
+        } else {
+          legacyMats.push(material);
+        }
+      });
+
+      // Organize lesson hierarchy
+      const rootLessons: Lesson[] = [];
+      lessonMap.forEach(lesson => {
+        if (lesson.parent_lesson_id && lessonMap.has(lesson.parent_lesson_id)) {
+          const parent = lessonMap.get(lesson.parent_lesson_id);
+          if (parent) {
+            parent.sub_lessons.push(lesson);
+          }
+        } else {
+          rootLessons.push(lesson);
+        }
+      });
+
+      setLessons(rootLessons);
+      setLegacyMaterials(legacyMats);
+      
+      // Set first material as current (from lessons or legacy)
+      const allMaterials = [...rootLessons.flatMap(l => getAllMaterials(l)), ...legacyMats];
+      if (allMaterials.length > 0) {
+        setCurrentMaterial(allMaterials[0]);
       }
 
     } catch (error) {
@@ -117,8 +179,103 @@ export default function CourseLearning() {
     }
   };
 
+  const getAllMaterials = (lesson: Lesson): CourseMaterial[] => {
+    const materials = [...lesson.materials];
+    lesson.sub_lessons.forEach(subLesson => {
+      materials.push(...getAllMaterials(subLesson));
+    });
+    return materials;
+  };
+
   const handleMaterialClick = (material: CourseMaterial) => {
     setCurrentMaterial(material);
+  };
+
+  const toggleLessonExpanded = (lessonId: string) => {
+    const newExpanded = new Set(expandedLessons);
+    if (newExpanded.has(lessonId)) {
+      newExpanded.delete(lessonId);
+    } else {
+      newExpanded.add(lessonId);
+    }
+    setExpandedLessons(newExpanded);
+  };
+
+  const renderLesson = (lesson: Lesson, depth = 0) => {
+    const isExpanded = expandedLessons.has(lesson.id);
+    
+    return (
+      <div key={lesson.id}>
+        <Collapsible open={isExpanded} onOpenChange={() => toggleLessonExpanded(lesson.id)}>
+          <CollapsibleTrigger asChild>
+            <button className={`w-full text-left p-3 border-b hover:bg-accent transition-colors flex items-center ${depth > 0 ? 'ml-4' : ''}`}>
+              <div className="flex items-center space-x-2 flex-1">
+                {isExpanded ? (
+                  <ChevronDown className="h-4 w-4" />
+                ) : (
+                  <ChevronRight className="h-4 w-4" />
+                )}
+                {isExpanded ? (
+                  <FolderOpen className="h-4 w-4 text-primary" />
+                ) : (
+                  <Folder className="h-4 w-4 text-muted-foreground" />
+                )}
+                <span className="font-medium text-sm">{lesson.title}</span>
+                <Badge variant="outline" className="text-xs ml-auto">
+                  {lesson.materials.length + lesson.sub_lessons.reduce((sum, sub) => sum + getAllMaterials(sub).length, 0)} items
+                </Badge>
+              </div>
+            </button>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <div className="space-y-1">
+              {/* Render materials */}
+              {lesson.materials.map((material, index) => (
+                <button
+                  key={material.id}
+                  onClick={() => handleMaterialClick(material)}
+                  className={`w-full text-left p-3 ml-6 border-b hover:bg-accent transition-colors ${
+                    currentMaterial?.id === material.id ? 'bg-accent' : ''
+                  }`}
+                >
+                  <div className="flex items-start space-x-3">
+                    <div className="flex-shrink-0 mt-1">
+                      {material.is_free ? (
+                        <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center">
+                          {getTypeIcon(material.type)}
+                        </div>
+                      ) : (
+                        <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center">
+                          <Lock className="h-3 w-3" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm leading-tight">
+                        {material.title}
+                      </p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Badge variant="secondary" className="text-xs capitalize">
+                          {material.type}
+                        </Badge>
+                        {material.duration_minutes && (
+                          <span className="text-xs text-muted-foreground">
+                            {material.duration_minutes}m
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </button>
+              ))}
+              
+              {/* Render sub-lessons */}
+              {lesson.sub_lessons.map(subLesson => renderLesson(subLesson, depth + 1))}
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+      </div>
+    );
   };
 
   const getTypeIcon = (type: string) => {
@@ -277,54 +434,63 @@ export default function CourseLearning() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-0">
-                {materials.length > 0 ? (
+                {lessons.length > 0 || legacyMaterials.length > 0 ? (
                   <div className="space-y-1">
-                    {materials.map((material, index) => (
-                      <button
-                        key={material.id}
-                        onClick={() => handleMaterialClick(material)}
-                        className={`w-full text-left p-4 border-b hover:bg-accent transition-colors ${
-                          currentMaterial?.id === material.id ? 'bg-accent' : ''
-                        }`}
-                      >
-                        <div className="flex items-start justify-between">
-                          <div className="flex items-start space-x-3 flex-1">
-                            <div className="flex-shrink-0 mt-1">
-                              {material.is_free ? (
-                                <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center">
-                                  {getTypeIcon(material.type)}
-                                </div>
-                              ) : (
-                                <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center">
-                                  <Lock className="h-3 w-3" />
-                                </div>
-                              )}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="font-medium text-sm leading-tight">
-                                {index + 1}. {material.title}
-                              </p>
-                              <div className="flex items-center gap-2 mt-1">
-                                <Badge variant="secondary" className="text-xs capitalize">
-                                  {material.type}
-                                </Badge>
-                                {material.duration_minutes && (
-                                  <span className="text-xs text-muted-foreground">
-                                    {material.duration_minutes}m
-                                  </span>
+                    {/* Render structured lessons */}
+                    {lessons.map(lesson => renderLesson(lesson))}
+                    
+                    {/* Render legacy materials */}
+                    {legacyMaterials.length > 0 && (
+                      <div>
+                        <div className="p-3 bg-muted/30 border-b">
+                          <span className="text-sm font-medium text-muted-foreground">Legacy Materials</span>
+                        </div>
+                        {legacyMaterials.map((material, index) => (
+                          <button
+                            key={material.id}
+                            onClick={() => handleMaterialClick(material)}
+                            className={`w-full text-left p-3 border-b hover:bg-accent transition-colors ${
+                              currentMaterial?.id === material.id ? 'bg-accent' : ''
+                            }`}
+                          >
+                            <div className="flex items-start space-x-3">
+                              <div className="flex-shrink-0 mt-1">
+                                {material.is_free ? (
+                                  <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center">
+                                    {getTypeIcon(material.type)}
+                                  </div>
+                                ) : (
+                                  <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center">
+                                    <Lock className="h-3 w-3" />
+                                  </div>
                                 )}
                               </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="font-medium text-sm leading-tight">
+                                  {material.title}
+                                </p>
+                                <div className="flex items-center gap-2 mt-1">
+                                  <Badge variant="secondary" className="text-xs capitalize">
+                                    {material.type}
+                                  </Badge>
+                                  {material.duration_minutes && (
+                                    <span className="text-xs text-muted-foreground">
+                                      {material.duration_minutes}m
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
                             </div>
-                          </div>
-                        </div>
-                      </button>
-                    ))}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="p-6 text-center">
                     <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
                     <p className="text-sm text-muted-foreground">
-                      No course materials available yet
+                      No course content available yet
                     </p>
                   </div>
                 )}

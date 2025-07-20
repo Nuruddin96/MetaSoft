@@ -18,6 +18,7 @@ import NotFound from "./pages/NotFound";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import UserManagement from "./pages/admin/UserManagement";
 import CourseManagement from "./pages/admin/CourseManagement";
+import CourseDetailsManagement from "./pages/admin/CourseDetailsManagement";
 import EnrollmentManagement from "./pages/admin/EnrollmentManagement";
 
 const queryClient = new QueryClient();
@@ -60,6 +61,14 @@ const App = () => (
               element={
                 <ProtectedRoute requireAdmin>
                   <CourseManagement />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/courses/:id" 
+              element={
+                <ProtectedRoute requireAdmin>
+                  <CourseDetailsManagement />
                 </ProtectedRoute>
               } 
             />

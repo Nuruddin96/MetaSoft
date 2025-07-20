@@ -51,6 +51,7 @@ export type Database = {
           file_url: string | null
           id: string
           is_free: boolean | null
+          lesson_id: string | null
           order_index: number
           title: string
           type: string
@@ -64,6 +65,7 @@ export type Database = {
           file_url?: string | null
           id?: string
           is_free?: boolean | null
+          lesson_id?: string | null
           order_index: number
           title: string
           type: string
@@ -77,6 +79,7 @@ export type Database = {
           file_url?: string | null
           id?: string
           is_free?: boolean | null
+          lesson_id?: string | null
           order_index?: number
           title?: string
           type?: string
@@ -87,6 +90,13 @@ export type Database = {
             columns: ["course_id"]
             isOneToOne: false
             referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "course_materials_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
             referencedColumns: ["id"]
           },
         ]
@@ -267,6 +277,50 @@ export type Database = {
             columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lessons: {
+        Row: {
+          course_id: string
+          created_at: string
+          description: string | null
+          id: string
+          is_published: boolean | null
+          order_index: number
+          parent_lesson_id: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_published?: boolean | null
+          order_index: number
+          parent_lesson_id?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_published?: boolean | null
+          order_index?: number
+          parent_lesson_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lessons_parent_lesson_id_fkey"
+            columns: ["parent_lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
             referencedColumns: ["id"]
           },
         ]
