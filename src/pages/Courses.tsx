@@ -1,53 +1,151 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { CourseCard } from "@/components/CourseCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Search, Filter } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
-// Mock courses data
-const allCourses = [
-  {
-    id: "1",
-    title: "Complete E-commerce Business Mastery 2024",
-    instructor: "Rashid Ahmed",
-    price: 2500,
-    originalPrice: 5000,
-    rating: 4.9,
-    studentsCount: 2340,
-    duration: "8h 30m",
-    thumbnail: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&h=225&fit=crop",
-    category: "E-commerce",
-    level: "Beginner" as const
-  },
-  {
-    id: "2", 
-    title: "Facebook & Instagram Marketing for Bangladesh",
-    instructor: "Fatima Khan",
-    price: 1800,
-    originalPrice: 3500,
-    rating: 4.8,
-    studentsCount: 1856,
-    duration: "6h 15m",
-    thumbnail: "https://images.unsplash.com/photo-1611926653458-09294b3142bf?w=400&h=225&fit=crop",
-    category: "Digital Marketing",
-    level: "Intermediate" as const
-  },
-  // ... more courses
-];
+interface Course {
+  id: string;
+  title: string;
+  short_description?: string;
+  price: number;
+  discounted_price?: number;
+  rating: number;
+  enrollment_count: number;
+  duration_hours?: number;
+  thumbnail_url?: string;
+  level: "beginner" | "intermediate" | "advanced";
+  course_categories?: {
+    name: string;
+  };
+  profiles?: {
+    full_name: string;
+  };
+}
 
-const categories = ["All", "E-commerce", "Digital Marketing", "Dropshipping", "Amazon FBA", "Local Business"];
+interface Category {
+  id: string;
+  name: string;
+}
+
 const levels = ["All", "Beginner", "Intermediate", "Advanced"];
 const sortOptions = ["Newest", "Most Popular", "Price: Low to High", "Price: High to Low", "Highest Rated"];
 
 export default function Courses() {
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedLevel, setSelectedLevel] = useState("All");
   const [sortBy, setSortBy] = useState("Most Popular");
+  const { toast } = useToast();
 
-  const filteredCourses = allCourses; // Add filtering logic here
+  useEffect(() => {
+    fetchCourses();
+    fetchCategories();
+  }, []);
+
+  const fetchCourses = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('courses')
+        .select(`
+          id,
+          title,
+          short_description,
+          price,
+          discounted_price,
+          rating,
+          enrollment_count,
+          duration_hours,
+          thumbnail_url,
+          level,
+          created_at,
+          course_categories (name),
+          profiles (full_name)
+        `)
+        .eq('is_published', true)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setCourses(data || []);
+    } catch (error) {
+      console.error('Error fetching courses:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load courses",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('course_categories')
+        .select('id, name')
+        .order('name');
+
+      if (error) throw error;
+      setCategories(data || []);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+
+  const filteredCourses = courses.filter(course => {
+    const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         course.short_description?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === 'All' || course.course_categories?.name === selectedCategory;
+    const matchesLevel = selectedLevel === 'All' || course.level.toLowerCase() === selectedLevel.toLowerCase();
+    
+    return matchesSearch && matchesCategory && matchesLevel;
+  }).sort((a, b) => {
+    switch (sortBy) {
+      case "Price: Low to High":
+        return (a.discounted_price || a.price) - (b.discounted_price || b.price);
+      case "Price: High to Low":
+        return (b.discounted_price || b.price) - (a.discounted_price || a.price);
+      case "Highest Rated":
+        return b.rating - a.rating;
+      case "Most Popular":
+        return b.enrollment_count - a.enrollment_count;
+      default:
+        return 0;
+    }
+  });
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-subtle">
+        {/* Header */}
+        <div className="bg-gradient-primary text-primary-foreground py-16">
+          <div className="container mx-auto px-4">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">All Courses</h1>
+            <p className="text-xl text-primary-foreground/90 max-w-2xl">
+              Master e-commerce with our comprehensive course library designed for Bangladeshi entrepreneurs
+            </p>
+          </div>
+        </div>
+
+        <div className="container mx-auto px-4 py-12">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="bg-card rounded-lg h-96 animate-pulse" />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-subtle">
@@ -82,9 +180,10 @@ export default function Courses() {
                 <SelectValue placeholder="Category" />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="All">All Categories</SelectItem>
                 {categories.map((category) => (
-                  <SelectItem key={category} value={category}>
-                    {category}
+                  <SelectItem key={category.id} value={category.name}>
+                    {category.name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -152,18 +251,33 @@ export default function Courses() {
         </div>
 
         {/* Course Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredCourses.map((course) => (
-            <CourseCard key={course.id} {...course} />
-          ))}
-        </div>
-
-        {/* Load More */}
-        <div className="text-center mt-12">
-          <Button size="lg" variant="outline">
-            Load More Courses
-          </Button>
-        </div>
+        {filteredCourses.length > 0 ? (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {filteredCourses.map((course) => (
+              <CourseCard 
+                key={course.id}
+                id={course.id}
+                title={course.title}
+                instructor={course.profiles?.full_name || "Unknown Instructor"}
+                price={course.price}
+                discounted_price={course.discounted_price || undefined}
+                rating={course.rating}
+                enrollment_count={course.enrollment_count}
+                duration_hours={course.duration_hours}
+                thumbnail_url={course.thumbnail_url || undefined}
+                category={course.course_categories?.name || "General"}
+                level={course.level}
+                short_description={course.short_description}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground text-lg">
+              No courses found matching your criteria.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
