@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,9 +27,21 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Search,
   Plus,
@@ -39,111 +51,323 @@ import {
   Users,
   UserCheck,
   UserX,
-  Filter
+  Filter,
+  BookOpen
 } from "lucide-react";
 
-// Mock user data
-const users = [
-  {
-    id: "1",
-    name: "Rashida Khatun",
-    email: "rashida@gmail.com",
-    role: "Student",
-    status: "Active",
-    enrolledCourses: 3,
-    totalSpent: "৳7,500",
-    joinDate: "2024-01-15",
-    lastActive: "2 hours ago"
-  },
-  {
-    id: "2",
-    name: "Sabbir Hasan",
-    email: "sabbir@metasoftbd.com",
-    role: "Instructor",
-    status: "Active",
-    enrolledCourses: 0,
-    totalSpent: "৳0",
-    joinDate: "2023-12-01",
-    lastActive: "1 day ago"
-  },
-  {
-    id: "3",
-    name: "Fatima Khan",
-    email: "fatima@metasoftbd.com",
-    role: "Instructor",
-    status: "Active",
-    enrolledCourses: 1,
-    totalSpent: "৳2,500",
-    joinDate: "2023-11-20",
-    lastActive: "3 hours ago"
-  },
-  {
-    id: "4",
-    name: "Karim Rahman",
-    email: "karim@gmail.com",
-    role: "Student",
-    status: "Inactive",
-    enrolledCourses: 1,
-    totalSpent: "৳3,200",
-    joinDate: "2024-02-10",
-    lastActive: "1 week ago"
-  },
-  {
-    id: "5",
-    name: "Admin User",
-    email: "admin@metasoftbd.com",
-    role: "Admin",
-    status: "Active",
-    enrolledCourses: 0,
-    totalSpent: "৳0",
-    joinDate: "2023-10-01",
-    lastActive: "Online now"
-  }
-];
+interface Profile {
+  id: string;
+  user_id: string;
+  full_name: string | null;
+  email: string | null;
+  role: string | null;
+  created_at: string;
+  avatar_url: string | null;
+  bio: string | null;
+  phone: string | null;
+}
 
-const userStats = [
-  {
-    title: "Total Users",
-    value: "2,847",
-    icon: Users,
-    color: "text-blue-600"
-  },
-  {
-    title: "Active Users",
-    value: "2,234",
-    icon: UserCheck,
-    color: "text-green-600"
-  },
-  {
-    title: "Inactive Users",
-    value: "613",
-    icon: UserX,
-    color: "text-red-600"
-  }
-];
+interface UserStats {
+  totalUsers: number;
+  activeUsers: number;
+  inactiveUsers: number;
+}
+
 
 export default function UserManagement() {
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState("All");
   const [statusFilter, setStatusFilter] = useState("All");
   const [isAddUserOpen, setIsAddUserOpen] = useState(false);
+  const [isEditUserOpen, setIsEditUserOpen] = useState(false);
+  const [isManageCoursesOpen, setIsManageCoursesOpen] = useState(false);
+  const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
+  const [users, setUsers] = useState<Profile[]>([]);
+  const [userStats, setUserStats] = useState<UserStats>({ totalUsers: 0, activeUsers: 0, inactiveUsers: 0 });
+  const [loading, setLoading] = useState(true);
+  const [newUser, setNewUser] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    role: "student",
+    password: ""
+  });
+  const [editUser, setEditUser] = useState({
+    full_name: "",
+    email: "",
+    role: "",
+    bio: "",
+    phone: ""
+  });
+  const [courses, setCourses] = useState<any[]>([]);
+  const [userEnrollments, setUserEnrollments] = useState<any[]>([]);
+  const [selectedCourseIds, setSelectedCourseIds] = useState<string[]>([]);
 
-  const getRoleBadgeVariant = (role: string) => {
+  useEffect(() => {
+    fetchUsers();
+    fetchCourses();
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      setUsers(data || []);
+      calculateUserStats(data || []);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      toast.error('Failed to fetch users');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchCourses = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('courses')
+        .select('id, title, is_published')
+        .eq('is_published', true);
+
+      if (error) throw error;
+      setCourses(data || []);
+    } catch (error) {
+      console.error('Error fetching courses:', error);
+    }
+  };
+
+  const fetchUserEnrollments = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('enrollments')
+        .select(`
+          id,
+          course_id,
+          status,
+          courses (
+            id,
+            title
+          )
+        `)
+        .eq('student_id', userId);
+
+      if (error) throw error;
+      setUserEnrollments(data || []);
+      setSelectedCourseIds(data?.map(enrollment => enrollment.course_id) || []);
+    } catch (error) {
+      console.error('Error fetching user enrollments:', error);
+    }
+  };
+
+  const calculateUserStats = (userData: Profile[]) => {
+    const total = userData.length;
+    const active = userData.filter(user => user.role !== null).length;
+    const inactive = total - active;
+    
+    setUserStats({
+      totalUsers: total,
+      activeUsers: active,
+      inactiveUsers: inactive
+    });
+  };
+
+  const handleAddUser = async () => {
+    try {
+      if (!newUser.email || !newUser.password) {
+        toast.error('Email and password are required');
+        return;
+      }
+
+      const { data, error } = await supabase.auth.admin.createUser({
+        email: newUser.email,
+        password: newUser.password,
+        user_metadata: {
+          full_name: `${newUser.firstName} ${newUser.lastName}`.trim(),
+          role: newUser.role
+        }
+      });
+
+      if (error) throw error;
+
+      toast.success('User created successfully');
+      setIsAddUserOpen(false);
+      setNewUser({ firstName: "", lastName: "", email: "", role: "student", password: "" });
+      fetchUsers();
+    } catch (error: any) {
+      console.error('Error creating user:', error);
+      toast.error(error.message || 'Failed to create user');
+    }
+  };
+
+  const handleEditUser = async () => {
+    if (!selectedUser) return;
+
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          full_name: editUser.full_name,
+          email: editUser.email,
+          role: editUser.role,
+          bio: editUser.bio,
+          phone: editUser.phone
+        })
+        .eq('id', selectedUser.id);
+
+      if (error) throw error;
+
+      toast.success('User updated successfully');
+      setIsEditUserOpen(false);
+      setSelectedUser(null);
+      fetchUsers();
+    } catch (error: any) {
+      console.error('Error updating user:', error);
+      toast.error(error.message || 'Failed to update user');
+    }
+  };
+
+  const handleDeleteUser = async () => {
+    if (!selectedUser) return;
+
+    try {
+      const { error } = await supabase.auth.admin.deleteUser(selectedUser.user_id);
+
+      if (error) throw error;
+
+      toast.success('User deleted successfully');
+      setIsDeleteAlertOpen(false);
+      setSelectedUser(null);
+      fetchUsers();
+    } catch (error: any) {
+      console.error('Error deleting user:', error);
+      toast.error(error.message || 'Failed to delete user');
+    }
+  };
+
+  const handleResetPassword = async (user: Profile) => {
+    try {
+      if (!user.email) {
+        toast.error('User email not found');
+        return;
+      }
+
+      const { error } = await supabase.auth.resetPasswordForEmail(user.email);
+
+      if (error) throw error;
+
+      toast.success('Password reset email sent');
+    } catch (error: any) {
+      console.error('Error resetting password:', error);
+      toast.error(error.message || 'Failed to send reset email');
+    }
+  };
+
+  const handleManageCourses = async () => {
+    if (!selectedUser) return;
+
+    try {
+      // Remove existing enrollments that are not selected
+      const currentEnrollmentIds = userEnrollments.map(e => e.course_id);
+      const toRemove = currentEnrollmentIds.filter(id => !selectedCourseIds.includes(id));
+      
+      if (toRemove.length > 0) {
+        await supabase
+          .from('enrollments')
+          .delete()
+          .eq('student_id', selectedUser.id)
+          .in('course_id', toRemove);
+      }
+
+      // Add new enrollments
+      const toAdd = selectedCourseIds.filter(id => !currentEnrollmentIds.includes(id));
+      
+      if (toAdd.length > 0) {
+        const newEnrollments = toAdd.map(courseId => ({
+          student_id: selectedUser.id,
+          course_id: courseId,
+          status: 'active'
+        }));
+
+        await supabase
+          .from('enrollments')
+          .insert(newEnrollments);
+      }
+
+      toast.success('Course enrollments updated successfully');
+      setIsManageCoursesOpen(false);
+      setSelectedUser(null);
+    } catch (error: any) {
+      console.error('Error managing courses:', error);
+      toast.error(error.message || 'Failed to update enrollments');
+    }
+  };
+
+  const openEditDialog = (user: Profile) => {
+    setSelectedUser(user);
+    setEditUser({
+      full_name: user.full_name || "",
+      email: user.email || "",
+      role: user.role || "student",
+      bio: user.bio || "",
+      phone: user.phone || ""
+    });
+    setIsEditUserOpen(true);
+  };
+
+  const openManageCoursesDialog = (user: Profile) => {
+    setSelectedUser(user);
+    fetchUserEnrollments(user.id);
+    setIsManageCoursesOpen(true);
+  };
+
+  const openDeleteDialog = (user: Profile) => {
+    setSelectedUser(user);
+    setIsDeleteAlertOpen(true);
+  };
+
+  const filteredUsers = users.filter(user => {
+    const matchesSearch = 
+      user.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesRole = roleFilter === "All" || user.role === roleFilter.toLowerCase();
+    
+    return matchesSearch && matchesRole;
+  });
+
+  const getRoleBadgeVariant = (role: string | null) => {
     switch (role) {
-      case "Admin":
+      case "admin":
         return "destructive";
-      case "Instructor":
+      case "instructor":
         return "default";
-      case "Student":
+      case "student":
         return "secondary";
       default:
         return "outline";
     }
   };
 
-  const getStatusBadgeVariant = (status: string) => {
-    return status === "Active" ? "default" : "secondary";
+  const formatRole = (role: string | null) => {
+    if (!role) return "N/A";
+    return role.charAt(0).toUpperCase() + role.slice(1);
   };
+
+  if (loading) {
+    return (
+      <AdminLayout>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-lg">Loading users...</div>
+        </div>
+      </AdminLayout>
+    );
+  }
 
   return (
     <AdminLayout>
@@ -175,20 +399,46 @@ export default function UserManagement() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="firstName">First Name</Label>
-                    <Input id="firstName" placeholder="Enter first name" />
+                    <Input 
+                      id="firstName" 
+                      placeholder="Enter first name"
+                      value={newUser.firstName}
+                      onChange={(e) => setNewUser({...newUser, firstName: e.target.value})}
+                    />
                   </div>
                   <div>
                     <Label htmlFor="lastName">Last Name</Label>
-                    <Input id="lastName" placeholder="Enter last name" />
+                    <Input 
+                      id="lastName" 
+                      placeholder="Enter last name"
+                      value={newUser.lastName}
+                      onChange={(e) => setNewUser({...newUser, lastName: e.target.value})}
+                    />
                   </div>
                 </div>
                 <div>
                   <Label htmlFor="email">Email Address</Label>
-                  <Input id="email" type="email" placeholder="Enter email address" />
+                  <Input 
+                    id="email" 
+                    type="email" 
+                    placeholder="Enter email address"
+                    value={newUser.email}
+                    onChange={(e) => setNewUser({...newUser, email: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="password">Password</Label>
+                  <Input 
+                    id="password" 
+                    type="password" 
+                    placeholder="Enter password"
+                    value={newUser.password}
+                    onChange={(e) => setNewUser({...newUser, password: e.target.value})}
+                  />
                 </div>
                 <div>
                   <Label htmlFor="role">Role</Label>
-                  <Select>
+                  <Select value={newUser.role} onValueChange={(value) => setNewUser({...newUser, role: value})}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select role" />
                     </SelectTrigger>
@@ -203,7 +453,7 @@ export default function UserManagement() {
                   <Button variant="outline" onClick={() => setIsAddUserOpen(false)}>
                     Cancel
                   </Button>
-                  <Button className="bg-gradient-primary hover:opacity-90">
+                  <Button className="bg-gradient-primary hover:opacity-90" onClick={handleAddUser}>
                     Create User
                   </Button>
                 </div>
@@ -214,17 +464,33 @@ export default function UserManagement() {
 
         {/* Stats Cards */}
         <div className="grid gap-4 md:grid-cols-3">
-          {userStats.map((stat) => (
-            <Card key={stat.title}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-                <stat.icon className={`h-4 w-4 ${stat.color}`} />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stat.value}</div>
-              </CardContent>
-            </Card>
-          ))}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+              <Users className="h-4 w-4 text-blue-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{userStats.totalUsers}</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Active Users</CardTitle>
+              <UserCheck className="h-4 w-4 text-green-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{userStats.activeUsers}</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Inactive Users</CardTitle>
+              <UserX className="h-4 w-4 text-red-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{userStats.inactiveUsers}</div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Filters and Search */}
@@ -251,11 +517,11 @@ export default function UserManagement() {
                   <SelectTrigger className="w-32">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                <SelectContent>
                     <SelectItem value="All">All Roles</SelectItem>
-                    <SelectItem value="Student">Student</SelectItem>
-                    <SelectItem value="Instructor">Instructor</SelectItem>
-                    <SelectItem value="Admin">Admin</SelectItem>
+                    <SelectItem value="student">Student</SelectItem>
+                    <SelectItem value="instructor">Instructor</SelectItem>
+                    <SelectItem value="admin">Admin</SelectItem>
                   </SelectContent>
                 </Select>
                 
@@ -292,28 +558,28 @@ export default function UserManagement() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {users.map((user) => (
+                  {filteredUsers.map((user) => (
                     <TableRow key={user.id}>
                       <TableCell>
                         <div>
-                          <div className="font-medium">{user.name}</div>
+                          <div className="font-medium">{user.full_name || "N/A"}</div>
                           <div className="text-sm text-muted-foreground">{user.email}</div>
                         </div>
                       </TableCell>
                       <TableCell>
                         <Badge variant={getRoleBadgeVariant(user.role)}>
-                          {user.role}
+                          {formatRole(user.role)}
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={getStatusBadgeVariant(user.status)}>
-                          {user.status}
+                        <Badge variant="default">
+                          Active
                         </Badge>
                       </TableCell>
-                      <TableCell>{user.enrolledCourses}</TableCell>
-                      <TableCell>{user.totalSpent}</TableCell>
+                      <TableCell>-</TableCell>
+                      <TableCell>-</TableCell>
                       <TableCell className="text-sm text-muted-foreground">
-                        {user.lastActive}
+                        {new Date(user.created_at).toLocaleDateString()}
                       </TableCell>
                       <TableCell>
                         <DropdownMenu>
@@ -324,18 +590,19 @@ export default function UserManagement() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => openEditDialog(user)}>
                               <Edit className="h-4 w-4 mr-2" />
                               Edit User
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
-                              View Profile
+                            <DropdownMenuItem onClick={() => openManageCoursesDialog(user)}>
+                              <BookOpen className="h-4 w-4 mr-2" />
+                              Manage Courses
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleResetPassword(user)}>
                               Reset Password
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-destructive">
+                            <DropdownMenuItem className="text-destructive" onClick={() => openDeleteDialog(user)}>
                               <Trash2 className="h-4 w-4 mr-2" />
                               Delete User
                             </DropdownMenuItem>
@@ -349,6 +616,138 @@ export default function UserManagement() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Edit User Dialog */}
+        <Dialog open={isEditUserOpen} onOpenChange={setIsEditUserOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit User</DialogTitle>
+              <DialogDescription>
+                Update user information and role.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="editFullName">Full Name</Label>
+                <Input
+                  id="editFullName"
+                  value={editUser.full_name}
+                  onChange={(e) => setEditUser({...editUser, full_name: e.target.value})}
+                  placeholder="Enter full name"
+                />
+              </div>
+              <div>
+                <Label htmlFor="editEmail">Email</Label>
+                <Input
+                  id="editEmail"
+                  type="email"
+                  value={editUser.email}
+                  onChange={(e) => setEditUser({...editUser, email: e.target.value})}
+                  placeholder="Enter email"
+                />
+              </div>
+              <div>
+                <Label htmlFor="editRole">Role</Label>
+                <Select value={editUser.role} onValueChange={(value) => setEditUser({...editUser, role: value})}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="student">Student</SelectItem>
+                    <SelectItem value="instructor">Instructor</SelectItem>
+                    <SelectItem value="admin">Admin</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="editPhone">Phone</Label>
+                <Input
+                  id="editPhone"
+                  value={editUser.phone}
+                  onChange={(e) => setEditUser({...editUser, phone: e.target.value})}
+                  placeholder="Enter phone number"
+                />
+              </div>
+              <div>
+                <Label htmlFor="editBio">Bio</Label>
+                <Input
+                  id="editBio"
+                  value={editUser.bio}
+                  onChange={(e) => setEditUser({...editUser, bio: e.target.value})}
+                  placeholder="Enter bio"
+                />
+              </div>
+              <div className="flex justify-end space-x-2">
+                <Button variant="outline" onClick={() => setIsEditUserOpen(false)}>
+                  Cancel
+                </Button>
+                <Button className="bg-gradient-primary hover:opacity-90" onClick={handleEditUser}>
+                  Update User
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Manage Courses Dialog */}
+        <Dialog open={isManageCoursesOpen} onOpenChange={setIsManageCoursesOpen}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Manage User Courses</DialogTitle>
+              <DialogDescription>
+                Select courses to enroll the user in.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 max-h-96 overflow-y-auto">
+              {courses.map((course) => (
+                <div key={course.id} className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id={course.id}
+                    checked={selectedCourseIds.includes(course.id)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSelectedCourseIds([...selectedCourseIds, course.id]);
+                      } else {
+                        setSelectedCourseIds(selectedCourseIds.filter(id => id !== course.id));
+                      }
+                    }}
+                    className="rounded border-gray-300"
+                  />
+                  <Label htmlFor={course.id} className="text-sm">
+                    {course.title}
+                  </Label>
+                </div>
+              ))}
+            </div>
+            <div className="flex justify-end space-x-2">
+              <Button variant="outline" onClick={() => setIsManageCoursesOpen(false)}>
+                Cancel
+              </Button>
+              <Button className="bg-gradient-primary hover:opacity-90" onClick={handleManageCourses}>
+                Update Enrollments
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Delete User Alert Dialog */}
+        <AlertDialog open={isDeleteAlertOpen} onOpenChange={setIsDeleteAlertOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete the user account and remove all associated data.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDeleteUser} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                Delete User
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </AdminLayout>
   );
