@@ -184,16 +184,28 @@ export default function UserManagement() {
         return;
       }
 
-      const { data, error } = await supabase.auth.admin.createUser({
+      // Use regular signup instead of admin API
+      const { data, error } = await supabase.auth.signUp({
         email: newUser.email,
         password: newUser.password,
-        user_metadata: {
-          full_name: `${newUser.firstName} ${newUser.lastName}`.trim(),
-          role: newUser.role
+        options: {
+          emailRedirectTo: `${window.location.origin}/`,
+          data: {
+            full_name: `${newUser.firstName} ${newUser.lastName}`.trim(),
+            role: newUser.role
+          }
         }
       });
 
       if (error) throw error;
+
+      // Update the profile with the role after creation
+      if (data.user) {
+        await supabase
+          .from('profiles')
+          .update({ role: newUser.role })
+          .eq('user_id', data.user.id);
+      }
 
       toast.success('User created successfully');
       setIsAddUserOpen(false);
@@ -236,17 +248,21 @@ export default function UserManagement() {
     if (!selectedUser) return;
 
     try {
-      const { error } = await supabase.auth.admin.deleteUser(selectedUser.user_id);
+      // Instead of using admin.deleteUser, we'll deactivate the user
+      const { error } = await supabase
+        .from('profiles')
+        .update({ role: null }) // Set role to null to deactivate
+        .eq('id', selectedUser.id);
 
       if (error) throw error;
 
-      toast.success('User deleted successfully');
+      toast.success('User deactivated successfully');
       setIsDeleteAlertOpen(false);
       setSelectedUser(null);
       fetchUsers();
     } catch (error: any) {
-      console.error('Error deleting user:', error);
-      toast.error(error.message || 'Failed to delete user');
+      console.error('Error deactivating user:', error);
+      toast.error(error.message || 'Failed to deactivate user');
     }
   };
 

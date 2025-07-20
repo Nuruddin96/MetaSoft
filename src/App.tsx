@@ -17,6 +17,7 @@ import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import UserManagement from "./pages/admin/UserManagement";
+import WebsiteManagement from "./pages/admin/WebsiteManagement";
 import CourseManagement from "./pages/admin/CourseManagement";
 import CourseDetailsManagement from "./pages/admin/CourseDetailsManagement";
 import EnrollmentManagement from "./pages/admin/EnrollmentManagement";
@@ -49,14 +50,6 @@ const App = () => (
               } 
             />
             <Route 
-              path="/admin/users" 
-              element={
-                <ProtectedRoute requireAdmin>
-                  <UserManagement />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
               path="/admin/courses" 
               element={
                 <ProtectedRoute requireAdmin>
@@ -73,12 +66,28 @@ const App = () => (
               } 
             />
             <Route 
+              path="/admin/users" 
+              element={
+                <ProtectedRoute requireAdmin>
+                  <UserManagement />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/website" 
+              element={
+                <ProtectedRoute requireAdmin>
+                  <WebsiteManagement />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
               path="/admin/enrollments" 
               element={
                 <ProtectedRoute requireAdmin>
                   <EnrollmentManagement />
                 </ProtectedRoute>
-              } 
+              }
             />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
