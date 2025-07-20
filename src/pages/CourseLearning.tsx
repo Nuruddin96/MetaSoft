@@ -278,6 +278,18 @@ export default function CourseLearning() {
     );
   };
 
+  const getYouTubeEmbedUrl = (url: string) => {
+    const regex = /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/;
+    const match = url.match(regex);
+    return match ? `https://www.youtube.com/embed/${match[1]}` : url;
+  };
+
+  const getGoogleDriveEmbedUrl = (url: string) => {
+    const regex = /\/file\/d\/([a-zA-Z0-9-_]+)/;
+    const match = url.match(regex);
+    return match ? `https://drive.google.com/file/d/${match[1]}/preview` : url;
+  };
+
   const getTypeIcon = (type: string) => {
     switch (type) {
       case 'video':
@@ -362,13 +374,33 @@ export default function CourseLearning() {
                   <>
                     {currentMaterial.type === 'video' && currentMaterial.file_url ? (
                       <div className="aspect-video bg-black rounded-t-lg overflow-hidden">
-                        <video 
-                          controls 
-                          className="w-full h-full"
-                          src={currentMaterial.file_url}
-                        >
-                          Your browser does not support the video tag.
-                        </video>
+                        {currentMaterial.file_url.includes('youtube.com') || currentMaterial.file_url.includes('youtu.be') ? (
+                          <iframe
+                            className="w-full h-full"
+                            src={getYouTubeEmbedUrl(currentMaterial.file_url)}
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                            title={currentMaterial.title}
+                          />
+                        ) : currentMaterial.file_url.includes('drive.google.com') ? (
+                          <iframe
+                            className="w-full h-full"
+                            src={getGoogleDriveEmbedUrl(currentMaterial.file_url)}
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                            title={currentMaterial.title}
+                          />
+                        ) : (
+                          <video 
+                            controls 
+                            className="w-full h-full"
+                            src={currentMaterial.file_url}
+                          >
+                            Your browser does not support the video tag.
+                          </video>
+                        )}
                       </div>
                     ) : (
                       <div className="aspect-video bg-gradient-primary rounded-t-lg flex items-center justify-center">
