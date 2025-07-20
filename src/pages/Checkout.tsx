@@ -75,7 +75,7 @@ export default function Checkout() {
         `)
         .eq('id', id)
         .eq('is_published', true)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       setCourse(data as Course);
@@ -108,7 +108,7 @@ export default function Checkout() {
           .eq('course_id', id)
           .eq('student_id', profile.id)
           .eq('status', 'active')
-          .single();
+          .maybeSingle();
 
         setAlreadyEnrolled(!!data);
       }
@@ -136,7 +136,7 @@ export default function Checkout() {
         .from('profiles')
         .select('id')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (!profile) {
         throw new Error('User profile not found');

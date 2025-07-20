@@ -1,7 +1,9 @@
 import { Link } from "react-router-dom";
 import { BookOpen, Facebook, Instagram, Youtube, Mail, Phone } from "lucide-react";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 export const Footer = () => {
+  const { settings } = useSiteSettings();
   return (
     <footer className="bg-foreground text-background py-12">
       <div className="container mx-auto px-4">
@@ -12,10 +14,10 @@ export const Footer = () => {
               <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
                 <BookOpen className="h-5 w-5 text-primary-foreground" />
               </div>
-              <span className="text-xl font-bold">MetaSoft BD</span>
+              <span className="text-xl font-bold">{settings.site_name || "MetaSoft BD"}</span>
             </Link>
             <p className="text-background/80 text-sm leading-relaxed">
-              Bangladesh's premier e-learning platform for e-commerce entrepreneurs. Learn, grow, and succeed with our expert-led courses.
+              {settings.footer_description || "Bangladesh's premier e-learning platform for e-commerce entrepreneurs. Learn, grow, and succeed with our expert-led courses."}
             </p>
           </div>
 
@@ -47,12 +49,17 @@ export const Footer = () => {
             <div className="space-y-3 text-sm">
               <div className="flex items-center space-x-2">
                 <Phone className="h-4 w-4" />
-                <span className="text-background/80">+880 1XXX-XXXXXX</span>
+                <span className="text-background/80">{settings.footer_contact_phone || "+880 1XXX-XXXXXX"}</span>
               </div>
               <div className="flex items-center space-x-2">
                 <Mail className="h-4 w-4" />
-                <span className="text-background/80">info@metasoftbd.com</span>
+                <span className="text-background/80">{settings.footer_contact_email || "info@metasoftbd.com"}</span>
               </div>
+              {settings.footer_address && (
+                <div className="text-background/80 text-sm mt-2">
+                  {settings.footer_address}
+                </div>
+              )}
               <div className="flex space-x-4 mt-4">
                 <Facebook className="h-5 w-5 text-background/80 hover:text-background transition-colors cursor-pointer" />
                 <Instagram className="h-5 w-5 text-background/80 hover:text-background transition-colors cursor-pointer" />

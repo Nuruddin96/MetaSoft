@@ -153,11 +153,12 @@ export default function WebsiteManagement() {
         </div>
 
         <Tabs defaultValue="hero" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="hero">Hero Section</TabsTrigger>
             <TabsTrigger value="footer">Footer</TabsTrigger>
             <TabsTrigger value="banner">Banner</TabsTrigger>
             <TabsTrigger value="general">General</TabsTrigger>
+            <TabsTrigger value="pages">Pages</TabsTrigger>
           </TabsList>
 
           {/* Hero Section */}
@@ -353,6 +354,30 @@ export default function WebsiteManagement() {
                   <Save className="h-4 w-4 mr-2" />
                   Save General Settings
                 </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Pages Management */}
+          <TabsContent value="pages">
+            <Card>
+              <CardHeader>
+                <CardTitle>Page Management</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="text-center py-8">
+                  <p className="text-muted-foreground mb-4">
+                    Page management functionality will be available soon. You can currently manage:
+                  </p>
+                  <ul className="text-sm space-y-2 text-left max-w-md mx-auto">
+                    <li>• Home page (Hero, Banner settings)</li>
+                    <li>• Footer content and contact information</li>
+                    <li>• Site branding and general settings</li>
+                  </ul>
+                  <p className="text-xs text-muted-foreground mt-4">
+                    Custom page creation feature coming in the next update
+                  </p>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>

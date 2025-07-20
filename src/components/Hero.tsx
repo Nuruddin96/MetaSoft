@@ -1,8 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Play, Star, Users, BookOpen } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 export const Hero = () => {
+  const { settings } = useSiteSettings();
   return (
     <section className="min-h-screen bg-gradient-hero relative overflow-hidden flex items-center">
       {/* Background decoration */}
@@ -18,14 +20,11 @@ export const Hero = () => {
             </div>
             
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight animate-slide-up">
-              Master E-commerce with 
-              <span className="block bg-gradient-to-r from-yellow-300 to-orange-300 bg-clip-text text-transparent">
-                MetaSoft BD
-              </span>
+              {settings.hero_title || "Master E-commerce with MetaSoft BD"}
             </h1>
             
             <p className="text-xl text-white/90 mb-8 leading-relaxed animate-slide-up" style={{animationDelay: '0.2s'}}>
-              Learn from Bangladesh's top e-commerce experts. Build your online business with our comprehensive video courses and expert guidance.
+              {settings.hero_subtitle || "Learn from Bangladesh's top e-commerce experts. Build your online business with our comprehensive video courses and expert guidance."}
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 mb-8 animate-slide-up" style={{animationDelay: '0.4s'}}>
@@ -36,7 +35,7 @@ export const Hero = () => {
               >
                 <Link to="/courses">
                   <BookOpen className="h-5 w-5 mr-2" />
-                  Explore Courses
+                  {settings.hero_cta_text || "Explore Courses"}
                 </Link>
               </Button>
               
