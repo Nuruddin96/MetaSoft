@@ -181,6 +181,8 @@ export default function Checkout() {
         navigate(`/success?course=${encodeURIComponent(course.title)}`);
       } else {
         // Paid course - process SSLCommerz payment
+        console.log('Attempting to create payment session for course:', course.id, 'amount:', finalPrice);
+        
         const { data, error } = await supabase.functions.invoke('sslcommerz-payment', {
           body: {
             courseId: course.id,
@@ -189,11 +191,20 @@ export default function Checkout() {
           }
         });
 
-        if (error || !data?.success) {
+        console.log('Payment function response:', { data, error });
+
+        if (error) {
+          console.error('Function invocation error:', error);
+          throw new Error(`Function error: ${error.message}`);
+        }
+
+        if (!data?.success) {
+          console.error('Payment initialization failed:', data);
           throw new Error(data?.error || 'Payment initialization failed');
         }
 
         // Redirect to SSLCommerz payment page
+        console.log('Redirecting to payment URL:', data.payment_url);
         window.location.href = data.payment_url;
       }
     } catch (error: any) {
