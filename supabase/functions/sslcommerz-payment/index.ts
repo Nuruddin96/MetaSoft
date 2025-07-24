@@ -14,16 +14,21 @@ serve(async (req) => {
   try {
     const { courseId, amount, currency = 'BDT' } = await req.json()
     
-    const authHeader = req.headers.get('Authorization')!
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader) {
+      throw new Error('Authorization header required')
+    }
+
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      { global: { headers: { Authorization: authHeader } } }
+      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
     )
 
-    // Get user
-    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    // Get user from token
+    const token = authHeader.replace('Bearer ', '')
+    const { data: { user }, error: userError } = await supabase.auth.getUser(token)
     if (userError || !user) {
+      console.error('Auth error:', userError)
       throw new Error('Unauthorized')
     }
 

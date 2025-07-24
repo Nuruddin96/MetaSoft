@@ -27,6 +27,9 @@ import CourseManagement from "./pages/admin/CourseManagement";
 import CourseDetailsManagement from "./pages/admin/CourseDetailsManagement";
 import EnrollmentManagement from "./pages/admin/EnrollmentManagement";
 import PageManagement from "./pages/admin/PageManagement";
+import Analytics from "./pages/admin/Analytics";
+import Notifications from "./pages/admin/Notifications";
+import HeroBannerManagement from "./pages/admin/HeroBannerManagement";
 import CustomPage from "./pages/CustomPage";
 
 const queryClient = new QueryClient();
@@ -114,6 +117,30 @@ const AppContent = () => {
               element={
                 <ProtectedRoute requireAdmin>
                   <WebsiteManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route 
+              path="/admin/analytics" 
+              element={
+                <ProtectedRoute requireAdmin>
+                  <Analytics />
+                </ProtectedRoute>
+              }
+            />
+            <Route 
+              path="/admin/notifications" 
+              element={
+                <ProtectedRoute requireAdmin>
+                  <Notifications />
+                </ProtectedRoute>
+              }
+            />
+            <Route 
+              path="/admin/hero-banners" 
+              element={
+                <ProtectedRoute requireAdmin>
+                  <HeroBannerManagement />
                 </ProtectedRoute>
               }
             />
