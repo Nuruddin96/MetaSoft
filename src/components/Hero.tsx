@@ -1,25 +1,111 @@
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Play, Star, Users, BookOpen } from "lucide-react";
+import { Play, Star, Users, BookOpen, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { supabase } from "@/integrations/supabase/client";
+
+interface HeroBanner {
+  id: string;
+  title: string;
+  subtitle: string | null;
+  background_image: string | null;
+  cta_text: string;
+  cta_link: string;
+  order_index: number;
+  is_active: boolean;
+}
 
 export const Hero = () => {
-  const { getSetting } = useSiteSettings();
-  
-  const heroEnabled = getSetting('hero_enabled') === 'true';
-  const heroTitle = getSetting('hero_title') || "Master E-commerce with MetaSoft BD";
-  const heroSubtitle = getSetting('hero_subtitle') || "Learn from Bangladesh's top e-commerce experts. Build your online business with our comprehensive video courses and expert guidance.";
-  const heroCtaText = getSetting('hero_cta_text') || "Explore Courses";
-  const heroCtaLink = getSetting('hero_cta_link') || "/courses";
-  const heroBackgroundImage = getSetting('hero_background_image');
+  const [banners, setBanners] = useState<HeroBanner[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [loading, setLoading] = useState(true);
 
-  if (!heroEnabled) {
+  useEffect(() => {
+    fetchHeroBanners();
+  }, []);
+
+  const fetchHeroBanners = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('hero_banners')
+        .select('*')
+        .eq('is_active', true)
+        .order('order_index', { ascending: true });
+
+      if (error) throw error;
+      setBanners(data || []);
+    } catch (error) {
+      console.error('Error fetching hero banners:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (banners.length > 1) {
+      const interval = setInterval(() => {
+        setCurrentIndex((prevIndex) => 
+          prevIndex === banners.length - 1 ? 0 : prevIndex + 1
+        );
+      }, 5000); // Auto-slide every 5 seconds
+
+      return () => clearInterval(interval);
+    }
+  }, [banners.length]);
+
+  const nextSlide = () => {
+    setCurrentIndex((prevIndex) => 
+      prevIndex === banners.length - 1 ? 0 : prevIndex + 1
+    );
+  };
+
+  const prevSlide = () => {
+    setCurrentIndex((prevIndex) => 
+      prevIndex === 0 ? banners.length - 1 : prevIndex - 1
+    );
+  };
+
+  if (loading) {
+    return <div className="min-h-screen bg-gradient-hero animate-pulse" />;
+  }
+
+  if (banners.length === 0) {
     return null;
   }
+
+  const currentBanner = banners[currentIndex];
+
   return (
-    <section className="min-h-screen bg-gradient-hero relative overflow-hidden flex items-center">
-      {/* Background decoration */}
-      <div className="absolute inset-0 opacity-30"></div>
+    <section 
+      className="min-h-screen bg-gradient-hero relative overflow-hidden flex items-center transition-all duration-1000"
+      style={{
+        backgroundImage: currentBanner.background_image ? `url(${currentBanner.background_image})` : undefined,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}
+    >
+      {/* Background overlay */}
+      <div className="absolute inset-0 bg-black/30"></div>
+      
+      {/* Navigation arrows */}
+      {banners.length > 1 && (
+        <>
+          <button
+            onClick={prevSlide}
+            className="absolute left-4 top-1/2 transform -translate-y-1/2 z-20 p-2 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors"
+            aria-label="Previous banner"
+          >
+            <ChevronLeft className="h-6 w-6 text-white" />
+          </button>
+          <button
+            onClick={nextSlide}
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20 p-2 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors"
+            aria-label="Next banner"
+          >
+            <ChevronRight className="h-6 w-6 text-white" />
+          </button>
+        </>
+      )}
       
       <div className="container mx-auto px-4 py-20 relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -31,12 +117,14 @@ export const Hero = () => {
             </div>
             
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight animate-slide-up">
-              {heroTitle}
+              {currentBanner.title}
             </h1>
             
-            <p className="text-xl text-white/90 mb-8 leading-relaxed animate-slide-up" style={{animationDelay: '0.2s'}}>
-              {heroSubtitle}
-            </p>
+            {currentBanner.subtitle && (
+              <p className="text-xl text-white/90 mb-8 leading-relaxed animate-slide-up" style={{animationDelay: '0.2s'}}>
+                {currentBanner.subtitle}
+              </p>
+            )}
             
             <div className="flex flex-col sm:flex-row gap-4 mb-8 animate-slide-up" style={{animationDelay: '0.4s'}}>
               <Button 
@@ -44,9 +132,9 @@ export const Hero = () => {
                 className="bg-white text-primary hover:bg-white/90 shadow-glow transition-all duration-300 hover:scale-105"
                 asChild
               >
-                <Link to={heroCtaLink as string}>
+                <Link to={currentBanner.cta_link}>
                   <BookOpen className="h-5 w-5 mr-2" />
-                  {heroCtaText}
+                  {currentBanner.cta_text}
                 </Link>
               </Button>
               
@@ -78,6 +166,22 @@ export const Hero = () => {
                 <div className="text-sm">Expert Instructors</div>
               </div>
             </div>
+            
+            {/* Dots indicator */}
+            {banners.length > 1 && (
+              <div className="flex justify-center lg:justify-start space-x-2 mt-8">
+                {banners.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentIndex(index)}
+                    className={`w-3 h-3 rounded-full transition-colors ${
+                      index === currentIndex ? 'bg-white' : 'bg-white/30'
+                    }`}
+                    aria-label={`Go to slide ${index + 1}`}
+                  />
+                ))}
+              </div>
+            )}
           </div>
           
           {/* Right Content - Video/Image placeholder */}

@@ -364,6 +364,45 @@ export type Database = {
           },
         ]
       }
+      hero_banners: {
+        Row: {
+          background_image: string | null
+          created_at: string
+          cta_link: string | null
+          cta_text: string | null
+          id: string
+          is_active: boolean | null
+          order_index: number | null
+          subtitle: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          background_image?: string | null
+          created_at?: string
+          cta_link?: string | null
+          cta_text?: string | null
+          id?: string
+          is_active?: boolean | null
+          order_index?: number | null
+          subtitle?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          background_image?: string | null
+          created_at?: string
+          cta_link?: string | null
+          cta_text?: string | null
+          id?: string
+          is_active?: boolean | null
+          order_index?: number | null
+          subtitle?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       lessons: {
         Row: {
           course_id: string
