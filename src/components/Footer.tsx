@@ -37,7 +37,7 @@ export const Footer = () => {
             <div className="flex space-x-4">
               {settings.social_facebook && settings.social_facebook !== '""' && (
                 <a
-                  href={JSON.parse(settings.social_facebook)}
+                  href={typeof settings.social_facebook === 'string' ? settings.social_facebook : settings.social_facebook}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-background/80 hover:text-background transition-colors"
@@ -47,7 +47,7 @@ export const Footer = () => {
               )}
               {settings.social_instagram && settings.social_instagram !== '""' && (
                 <a
-                  href={JSON.parse(settings.social_instagram)}
+                  href={typeof settings.social_instagram === 'string' ? settings.social_instagram : settings.social_instagram}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-background/80 hover:text-background transition-colors"
@@ -57,7 +57,7 @@ export const Footer = () => {
               )}
               {settings.social_youtube && settings.social_youtube !== '""' && (
                 <a
-                  href={JSON.parse(settings.social_youtube)}
+                  href={typeof settings.social_youtube === 'string' ? settings.social_youtube : settings.social_youtube}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-background/80 hover:text-background transition-colors"
@@ -67,7 +67,7 @@ export const Footer = () => {
               )}
               {settings.social_linkedin && settings.social_linkedin !== '""' && (
                 <a
-                  href={JSON.parse(settings.social_linkedin)}
+                  href={typeof settings.social_linkedin === 'string' ? settings.social_linkedin : settings.social_linkedin}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-background/80 hover:text-background transition-colors"
@@ -77,7 +77,7 @@ export const Footer = () => {
               )}
               {settings.social_twitter && settings.social_twitter !== '""' && (
                 <a
-                  href={JSON.parse(settings.social_twitter)}
+                  href={typeof settings.social_twitter === 'string' ? settings.social_twitter : settings.social_twitter}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-background/80 hover:text-background transition-colors"
