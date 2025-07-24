@@ -41,16 +41,24 @@ export const useSiteSettings = () => {
 
       const settingsObj: SiteSettings = {};
       data?.forEach((setting) => {
-        // Handle string values that are JSON strings
-        if (typeof setting.value === 'string') {
+        let value = setting.value;
+        
+        // Handle different value formats from database
+        if (value && typeof value === 'object' && !Array.isArray(value) && 'value' in value) {
+          // Handle wrapped format: { value: actualValue }
+          value = (value as any).value;
+        }
+        
+        // Now handle the actual value
+        if (typeof value === 'string') {
           try {
-            const parsed = JSON.parse(setting.value);
+            const parsed = JSON.parse(value);
             (settingsObj as any)[setting.key] = parsed;
           } catch {
-            (settingsObj as any)[setting.key] = setting.value;
+            (settingsObj as any)[setting.key] = value;
           }
         } else {
-          (settingsObj as any)[setting.key] = setting.value;
+          (settingsObj as any)[setting.key] = value;
         }
       });
 
