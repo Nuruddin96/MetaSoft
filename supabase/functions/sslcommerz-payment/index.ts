@@ -65,7 +65,16 @@ serve(async (req) => {
 
     const config = sslSettings?.reduce((acc: any, setting) => {
       const key = setting.key.replace('ssl_', '')
-      acc[key] = typeof setting.value === 'string' ? JSON.parse(setting.value) : setting.value
+      // Handle JSON strings properly
+      let value = setting.value
+      if (typeof value === 'string' && (value.startsWith('"') || value.startsWith('{'))) {
+        try {
+          value = JSON.parse(value)
+        } catch (e) {
+          // If parsing fails, use the raw value
+        }
+      }
+      acc[key] = value
       return acc
     }, {}) || {}
 
@@ -108,7 +117,7 @@ serve(async (req) => {
       ship_country: 'Bangladesh'
     })
 
-    // Create payment record
+    // Create payment record first
     const { error: paymentError } = await supabase
       .from('payments')
       .insert({
@@ -122,7 +131,8 @@ serve(async (req) => {
       })
 
     if (paymentError) {
-      throw new Error('Failed to create payment record')
+      console.error('Payment record creation error:', paymentError)
+      throw new Error('Failed to create payment record: ' + paymentError.message)
     }
 
     // Make request to SSLCommerz
