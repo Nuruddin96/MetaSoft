@@ -91,7 +91,20 @@ const Index = () => {
           ) : courses.length > 0 ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {courses.map((course) => (
-                <CourseCard key={course.id} course={course} />
+                <CourseCard 
+                  key={course.id}
+                  id={course.id}
+                  title={course.title}
+                  instructor={course.profiles?.full_name || "Unknown"}
+                  price={course.price}
+                  discounted_price={course.discounted_price}
+                  rating={course.rating}
+                  enrollment_count={course.enrollment_count}
+                  thumbnail_url={course.thumbnail_url}
+                  category={course.course_categories?.name || "General"}
+                  level={course.level as "beginner" | "intermediate" | "advanced"}
+                  short_description={course.short_description}
+                />
               ))}
             </div>
           ) : (

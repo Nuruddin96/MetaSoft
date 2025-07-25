@@ -29,6 +29,7 @@ import EnrollmentManagement from "./pages/admin/EnrollmentManagement";
 import PageManagement from "./pages/admin/PageManagement";
 import Analytics from "./pages/admin/Analytics";
 import Notifications from "./pages/admin/Notifications";
+import SSLConfigManagement from "./pages/admin/SSLConfigManagement";
 import HeroBannerManagement from "./pages/admin/HeroBannerManagement";
 import CustomPage from "./pages/CustomPage";
 
@@ -141,6 +142,14 @@ const AppContent = () => {
               element={
                 <ProtectedRoute requireAdmin>
                   <HeroBannerManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route 
+              path="/admin/ssl-config" 
+              element={
+                <ProtectedRoute requireAdmin>
+                  <SSLConfigManagement />
                 </ProtectedRoute>
               }
             />

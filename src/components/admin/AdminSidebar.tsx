@@ -77,6 +77,12 @@ const sidebarItems = [
     badge: "5 new"
   },
   {
+    title: "SSL Configuration",
+    href: "/admin/ssl-config",
+    icon: Shield,
+    badge: null
+  },
+  {
     title: "Settings",
     href: "/admin/settings",
     icon: Settings,
