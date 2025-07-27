@@ -24,24 +24,41 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_ANON_KEY') ?? ''
     )
 
+    // Create supabase client with auth header
+    const supabaseWithAuth = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      {
+        global: {
+          headers: {
+            Authorization: authHeader,
+          },
+        },
+      }
+    )
+
     // Get user from token
-    const token = authHeader.replace('Bearer ', '')
-    const { data: { user }, error: userError } = await supabase.auth.getUser(token)
+    const { data: { user }, error: userError } = await supabaseWithAuth.auth.getUser()
     if (userError || !user) {
       console.error('Auth error:', userError)
-      throw new Error('Unauthorized')
+      throw new Error('Unauthorized: ' + (userError?.message || 'No user found'))
     }
 
+    console.log('User authenticated:', user.id)
+
     // Get user profile
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabaseWithAuth
       .from('profiles')
       .select('*')
       .eq('user_id', user.id)
       .single()
 
-    if (!profile) {
-      throw new Error('Profile not found')
+    if (profileError || !profile) {
+      console.error('Profile error:', profileError)
+      throw new Error('Profile not found: ' + (profileError?.message || 'No profile'))
     }
+
+    console.log('Profile found:', profile.id)
 
     // Get course details
     const { data: course } = await supabase
