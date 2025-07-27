@@ -181,7 +181,7 @@ export default function Checkout() {
         navigate(`/success?course=${encodeURIComponent(course.title)}`);
       } else {
         // Paid course - process SSLCommerz payment
-        console.log('Attempting to create payment session for course:', course.id, 'amount:', finalPrice);
+        console.log('Processing payment via SSLCommerz for course:', course.id, 'amount:', finalPrice);
         
         const { data, error } = await supabase.functions.invoke('sslcommerz-payment', {
           body: {
@@ -191,24 +191,24 @@ export default function Checkout() {
           }
         });
 
-        console.log('Payment function response:', { data, error });
+        console.log('SSLCommerz payment response:', { data, error });
 
         if (error) {
-          console.error('Function invocation error:', error);
-          throw new Error(`Function error: ${error.message}`);
+          console.error('SSLCommerz function error:', error);
+          throw new Error(`Payment processing failed: ${error.message}`);
         }
 
         if (!data?.success) {
-          console.error('Payment initialization failed:', data);
+          console.error('SSLCommerz payment initialization failed:', data);
           throw new Error(data?.error || 'Payment initialization failed');
         }
 
-        // Redirect to SSLCommerz payment page
-        console.log('Redirecting to payment URL:', data.payment_url);
+        // Redirect to SSLCommerz payment gateway
+        console.log('Redirecting to SSLCommerz payment gateway:', data.payment_url);
         window.location.href = data.payment_url;
       }
     } catch (error: any) {
-      console.error('Error enrolling:', error);
+      console.error('Error during enrollment:', error);
       toast({
         title: "Enrollment Failed",
         description: error.message || "Failed to enroll in the course. Please try again.",
@@ -378,7 +378,7 @@ export default function Checkout() {
                     </>
                   ) : (
                     <div className="text-3xl font-bold text-primary">
-                      ৳{course.price.toLocaleString()}
+                      {course.price === 0 ? 'Free' : `৳${course.price.toLocaleString()}`}
                     </div>
                   )}
                 </div>
@@ -390,7 +390,7 @@ export default function Checkout() {
                   <h4 className="font-semibold">Order Summary</h4>
                   <div className="flex justify-between">
                     <span>Course Price</span>
-                    <span>৳{course.price.toLocaleString()}</span>
+                    <span>{course.price === 0 ? 'Free' : `৳${course.price.toLocaleString()}`}</span>
                   </div>
                   {course.discounted_price && (
                     <div className="flex justify-between text-green-600">
@@ -401,11 +401,29 @@ export default function Checkout() {
                   <Separator />
                   <div className="flex justify-between font-semibold text-lg">
                     <span>Total</span>
-                    <span>৳{finalPrice.toLocaleString()}</span>
+                    <span>{finalPrice === 0 ? 'Free' : `৳${finalPrice.toLocaleString()}`}</span>
                   </div>
                 </div>
 
                 <Separator />
+
+                {/* Payment Method */}
+                {finalPrice > 0 && (
+                  <div className="space-y-3">
+                    <h4 className="font-semibold">Payment Method</h4>
+                    <div className="flex items-center p-3 border rounded-lg">
+                      <div className="flex items-center">
+                        <div className="w-10 h-8 bg-blue-600 rounded flex items-center justify-center">
+                          <span className="text-white text-xs font-bold">SSL</span>
+                        </div>
+                        <div className="ml-3">
+                          <p className="font-medium text-sm">SSLCommerz</p>
+                          <p className="text-xs text-muted-foreground">Secure payment gateway</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Enrollment Button */}
                 {alreadyEnrolled ? (
@@ -424,7 +442,7 @@ export default function Checkout() {
                     size="lg" 
                     className="w-full bg-gradient-primary hover:opacity-90"
                   >
-                    {enrolling ? "Processing..." : "Enroll Now"}
+                    {enrolling ? "Processing..." : finalPrice === 0 ? "Enroll Free" : "Enroll Now - Pay with SSLCommerz"}
                   </Button>
                 )}
 

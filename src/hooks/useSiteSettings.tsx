@@ -8,6 +8,10 @@ interface SiteSettings {
   hero_cta_link?: string;
   hero_background_image?: string;
   hero_enabled?: string;
+  hero_slide_1?: string;
+  hero_slide_2?: string;
+  hero_slide_3?: string;
+  hero_slideshow_enabled?: boolean;
   footer_description?: string;
   footer_contact_email?: string;
   footer_contact_phone?: string;

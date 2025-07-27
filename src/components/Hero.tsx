@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Play, Star, Users, BookOpen, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 interface HeroBanner {
   id: string;
@@ -19,10 +20,22 @@ export const Hero = () => {
   const [banners, setBanners] = useState<HeroBanner[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [heroImages, setHeroImages] = useState<string[]>([]);
+  const [imageIndex, setImageIndex] = useState(0);
+  const { settings } = useSiteSettings();
 
   useEffect(() => {
     fetchHeroBanners();
   }, []);
+
+  useEffect(() => {
+    // Get hero slide images from settings
+    const slides = [];
+    if (settings.hero_slide_1) slides.push(settings.hero_slide_1);
+    if (settings.hero_slide_2) slides.push(settings.hero_slide_2);
+    if (settings.hero_slide_3) slides.push(settings.hero_slide_3);
+    setHeroImages(slides);
+  }, [settings]);
 
   const fetchHeroBanners = async () => {
     try {
@@ -53,6 +66,18 @@ export const Hero = () => {
     }
   }, [banners.length]);
 
+  useEffect(() => {
+    if (heroImages.length > 1 && settings.hero_slideshow_enabled) {
+      const interval = setInterval(() => {
+        setImageIndex((prevIndex) => 
+          prevIndex === heroImages.length - 1 ? 0 : prevIndex + 1
+        );
+      }, 4000); // Auto-slide images every 4 seconds
+
+      return () => clearInterval(interval);
+    }
+  }, [heroImages.length, settings.hero_slideshow_enabled]);
+
   const nextSlide = () => {
     setCurrentIndex((prevIndex) => 
       prevIndex === banners.length - 1 ? 0 : prevIndex + 1
@@ -74,12 +99,18 @@ export const Hero = () => {
   }
 
   const currentBanner = banners[currentIndex];
+  const currentHeroImage = heroImages[imageIndex];
+
+  // Use hero slide images if slideshow is enabled and images exist
+  const backgroundImage = settings.hero_slideshow_enabled && heroImages.length > 0 
+    ? currentHeroImage 
+    : currentBanner?.background_image;
 
   return (
     <section 
       className="min-h-screen bg-gradient-hero relative overflow-hidden flex items-center transition-all duration-1000"
       style={{
-        backgroundImage: currentBanner.background_image ? `url(${currentBanner.background_image})` : undefined,
+        backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}

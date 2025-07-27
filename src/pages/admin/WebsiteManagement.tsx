@@ -17,6 +17,10 @@ interface WebsiteSettings {
   hero_cta_link?: string;
   hero_background_image?: string;
   hero_enabled?: boolean;
+  hero_slide_1?: string;
+  hero_slide_2?: string;
+  hero_slide_3?: string;
+  hero_slideshow_enabled?: boolean;
   footer_description?: string;
   footer_contact_email?: string;
   footer_contact_phone?: string;
@@ -379,35 +383,104 @@ export default function WebsiteManagement() {
           <TabsContent value="banner">
             <Card>
               <CardHeader>
-                <CardTitle>Banner Settings</CardTitle>
+                <CardTitle>Banner & Image Slides Settings</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    id="banner_enabled"
-                    checked={settings.banner_enabled || false}
-                    onChange={(e) => updateSetting('banner_enabled', e.target.checked)}
-                    className="rounded border-gray-300"
-                  />
-                  <Label htmlFor="banner_enabled">Enable Banner</Label>
+              <CardContent className="space-y-6">
+                {/* Banner Settings */}
+                <div className="space-y-4">
+                  <h4 className="font-semibold text-lg">Banner Settings</h4>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="banner_enabled"
+                      checked={settings.banner_enabled || false}
+                      onChange={(e) => updateSetting('banner_enabled', e.target.checked)}
+                      className="rounded border-gray-300"
+                    />
+                    <Label htmlFor="banner_enabled">Enable Banner</Label>
+                  </div>
+                  <div>
+                    <Label htmlFor="banner_text">Banner Text</Label>
+                    <Input
+                      id="banner_text"
+                      value={settings.banner_text || ''}
+                      onChange={(e) => updateSetting('banner_text', e.target.value)}
+                      placeholder="Enter banner announcement text"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <Label htmlFor="banner_text">Banner Text</Label>
-                  <Input
-                    id="banner_text"
-                    value={settings.banner_text || ''}
-                    onChange={(e) => updateSetting('banner_text', e.target.value)}
-                    placeholder="Enter banner announcement text"
-                  />
+
+                {/* Image Slides Settings */}
+                <div className="space-y-4 pt-6 border-t">
+                  <h4 className="font-semibold text-lg">Hero Image Slides</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Add multiple images to create a slideshow in the hero section. Images will rotate automatically.
+                  </p>
+                  
+                  <div>
+                    <Label htmlFor="hero_slide_1">Hero Slide 1 Image URL</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="hero_slide_1"
+                        value={settings.hero_slide_1 || ''}
+                        onChange={(e) => updateSetting('hero_slide_1', e.target.value)}
+                        placeholder="Enter image URL for slide 1"
+                      />
+                      <Button variant="outline" size="sm">
+                        <Upload className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="hero_slide_2">Hero Slide 2 Image URL</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="hero_slide_2"
+                        value={settings.hero_slide_2 || ''}
+                        onChange={(e) => updateSetting('hero_slide_2', e.target.value)}
+                        placeholder="Enter image URL for slide 2"
+                      />
+                      <Button variant="outline" size="sm">
+                        <Upload className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="hero_slide_3">Hero Slide 3 Image URL</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="hero_slide_3"
+                        value={settings.hero_slide_3 || ''}
+                        onChange={(e) => updateSetting('hero_slide_3', e.target.value)}
+                        placeholder="Enter image URL for slide 3"
+                      />
+                      <Button variant="outline" size="sm">
+                        <Upload className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="hero_slideshow_enabled"
+                      checked={settings.hero_slideshow_enabled || false}
+                      onChange={(e) => updateSetting('hero_slideshow_enabled', e.target.checked)}
+                      className="rounded border-gray-300"
+                    />
+                    <Label htmlFor="hero_slideshow_enabled">Enable Image Slideshow</Label>
+                  </div>
                 </div>
+
                 <Button 
-                  onClick={() => handleSaveSection(['banner_enabled', 'banner_text'])}
+                  onClick={() => handleSaveSection(['banner_enabled', 'banner_text', 'hero_slide_1', 'hero_slide_2', 'hero_slide_3', 'hero_slideshow_enabled'])}
                   disabled={saving}
                   className="bg-gradient-primary hover:opacity-90"
                 >
                   <Save className="h-4 w-4 mr-2" />
-                  Save Banner
+                  Save Banner & Image Slides
                 </Button>
               </CardContent>
             </Card>
