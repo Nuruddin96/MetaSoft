@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Save, Upload, Eye } from "lucide-react";
+import { FileUpload } from "@/components/admin/FileUpload";
 
 interface WebsiteSettings {
   hero_title?: string;
@@ -40,6 +41,7 @@ export default function WebsiteManagement() {
   const [settings, setSettings] = useState<WebsiteSettings>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [showUpload, setShowUpload] = useState<string | null>(null);
 
   useEffect(() => {
     fetchWebsiteSettings();
@@ -418,48 +420,96 @@ export default function WebsiteManagement() {
                   </p>
                   
                   <div>
-                    <Label htmlFor="hero_slide_1">Hero Slide 1 Image URL</Label>
-                    <div className="flex gap-2">
+                    <Label htmlFor="hero_slide_1">Hero Slide 1 Image</Label>
+                    <div className="flex gap-2 mb-2">
                       <Input
                         id="hero_slide_1"
                         value={settings.hero_slide_1 || ''}
                         onChange={(e) => updateSetting('hero_slide_1', e.target.value)}
                         placeholder="Enter image URL for slide 1"
                       />
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => setShowUpload(showUpload === 'slide1' ? null : 'slide1')}
+                      >
                         <Upload className="h-4 w-4" />
                       </Button>
                     </div>
+                    {showUpload === 'slide1' && (
+                      <FileUpload
+                        onFileUploaded={(url) => {
+                          updateSetting('hero_slide_1', url);
+                          setShowUpload(null);
+                        }}
+                        acceptedTypes="image/*,.jpg,.jpeg,.png,.webp"
+                        maxSize={10}
+                        bucketName="course-thumbnails"
+                        folder="hero-images"
+                      />
+                    )}
                   </div>
 
                   <div>
-                    <Label htmlFor="hero_slide_2">Hero Slide 2 Image URL</Label>
-                    <div className="flex gap-2">
+                    <Label htmlFor="hero_slide_2">Hero Slide 2 Image</Label>
+                    <div className="flex gap-2 mb-2">
                       <Input
                         id="hero_slide_2"
                         value={settings.hero_slide_2 || ''}
                         onChange={(e) => updateSetting('hero_slide_2', e.target.value)}
                         placeholder="Enter image URL for slide 2"
                       />
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => setShowUpload(showUpload === 'slide2' ? null : 'slide2')}
+                      >
                         <Upload className="h-4 w-4" />
                       </Button>
                     </div>
+                    {showUpload === 'slide2' && (
+                      <FileUpload
+                        onFileUploaded={(url) => {
+                          updateSetting('hero_slide_2', url);
+                          setShowUpload(null);
+                        }}
+                        acceptedTypes="image/*,.jpg,.jpeg,.png,.webp"
+                        maxSize={10}
+                        bucketName="course-thumbnails"
+                        folder="hero-images"
+                      />
+                    )}
                   </div>
 
                   <div>
-                    <Label htmlFor="hero_slide_3">Hero Slide 3 Image URL</Label>
-                    <div className="flex gap-2">
+                    <Label htmlFor="hero_slide_3">Hero Slide 3 Image</Label>
+                    <div className="flex gap-2 mb-2">
                       <Input
                         id="hero_slide_3"
                         value={settings.hero_slide_3 || ''}
                         onChange={(e) => updateSetting('hero_slide_3', e.target.value)}
                         placeholder="Enter image URL for slide 3"
                       />
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => setShowUpload(showUpload === 'slide3' ? null : 'slide3')}
+                      >
                         <Upload className="h-4 w-4" />
                       </Button>
                     </div>
+                    {showUpload === 'slide3' && (
+                      <FileUpload
+                        onFileUploaded={(url) => {
+                          updateSetting('hero_slide_3', url);
+                          setShowUpload(null);
+                        }}
+                        acceptedTypes="image/*,.jpg,.jpeg,.png,.webp"
+                        maxSize={10}
+                        bucketName="course-thumbnails"
+                        folder="hero-images"
+                      />
+                    )}
                   </div>
 
                   <div className="flex items-center space-x-2">

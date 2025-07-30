@@ -83,6 +83,12 @@ const sidebarItems = [
     badge: null
   },
   {
+    title: "bKash Configuration",
+    href: "/admin/bkash-config",
+    icon: CreditCard,
+    badge: null
+  },
+  {
     title: "Settings",
     href: "/admin/settings",
     icon: Settings,

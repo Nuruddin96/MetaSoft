@@ -30,6 +30,7 @@ import PageManagement from "./pages/admin/PageManagement";
 import Analytics from "./pages/admin/Analytics";
 import Notifications from "./pages/admin/Notifications";
 import SSLConfigManagement from "./pages/admin/SSLConfigManagement";
+import BkashConfigManagement from "./pages/admin/BkashConfigManagement";
 import HeroBannerManagement from "./pages/admin/HeroBannerManagement";
 import CustomPage from "./pages/CustomPage";
 
@@ -150,6 +151,22 @@ const AppContent = () => {
               element={
                 <ProtectedRoute requireAdmin>
                   <SSLConfigManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route 
+              path="/admin/bkash-config" 
+              element={
+                <ProtectedRoute requireAdmin>
+                  <BkashConfigManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route 
+              path="/admin/payments" 
+              element={
+                <ProtectedRoute requireAdmin>
+                  <EnrollmentManagement />
                 </ProtectedRoute>
               }
             />
