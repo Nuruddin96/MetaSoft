@@ -4,7 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Star, Clock, Users, BookOpen, ArrowLeft, CreditCard, Shield } from "lucide-react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { Star, Clock, Users, BookOpen, ArrowLeft, CreditCard, Shield, Smartphone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
@@ -41,6 +43,7 @@ export default function Checkout() {
   const [loading, setLoading] = useState(true);
   const [enrolling, setEnrolling] = useState(false);
   const [alreadyEnrolled, setAlreadyEnrolled] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<'sslcommerz' | 'bkash'>('sslcommerz');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -180,32 +183,61 @@ export default function Checkout() {
 
         navigate(`/success?course=${encodeURIComponent(course.title)}`);
       } else {
-        // Paid course - process SSLCommerz payment
-        console.log('Processing payment via SSLCommerz for course:', course.id, 'amount:', finalPrice);
-        
-        const { data, error } = await supabase.functions.invoke('sslcommerz-payment', {
-          body: {
-            courseId: course.id,
-            amount: finalPrice,
-            currency: 'BDT'
+        // Paid course - process payment based on selected method
+        if (paymentMethod === 'bkash') {
+          console.log('Processing payment via bKash for course:', course.id, 'amount:', finalPrice);
+          
+          const { data, error } = await supabase.functions.invoke('bkash-payment', {
+            body: {
+              courseId: course.id,
+              amount: finalPrice,
+              currency: 'BDT'
+            }
+          });
+
+          console.log('bKash payment response:', { data, error });
+
+          if (error) {
+            console.error('bKash function error:', error);
+            throw new Error(`Payment processing failed: ${error.message}`);
           }
-        });
 
-        console.log('SSLCommerz payment response:', { data, error });
+          if (!data?.success) {
+            console.error('bKash payment initialization failed:', data);
+            throw new Error(data?.error || 'Payment initialization failed');
+          }
 
-        if (error) {
-          console.error('SSLCommerz function error:', error);
-          throw new Error(`Payment processing failed: ${error.message}`);
+          // Redirect to bKash payment gateway
+          console.log('Redirecting to bKash payment gateway:', data.payment_url);
+          window.location.href = data.payment_url;
+        } else {
+          // SSLCommerz payment
+          console.log('Processing payment via SSLCommerz for course:', course.id, 'amount:', finalPrice);
+          
+          const { data, error } = await supabase.functions.invoke('sslcommerz-payment', {
+            body: {
+              courseId: course.id,
+              amount: finalPrice,
+              currency: 'BDT'
+            }
+          });
+
+          console.log('SSLCommerz payment response:', { data, error });
+
+          if (error) {
+            console.error('SSLCommerz function error:', error);
+            throw new Error(`Payment processing failed: ${error.message}`);
+          }
+
+          if (!data?.success) {
+            console.error('SSLCommerz payment initialization failed:', data);
+            throw new Error(data?.error || 'Payment initialization failed');
+          }
+
+          // Redirect to SSLCommerz payment gateway
+          console.log('Redirecting to SSLCommerz payment gateway:', data.payment_url);
+          window.location.href = data.payment_url;
         }
-
-        if (!data?.success) {
-          console.error('SSLCommerz payment initialization failed:', data);
-          throw new Error(data?.error || 'Payment initialization failed');
-        }
-
-        // Redirect to SSLCommerz payment gateway
-        console.log('Redirecting to SSLCommerz payment gateway:', data.payment_url);
-        window.location.href = data.payment_url;
       }
     } catch (error: any) {
       console.error('Error during enrollment:', error);
@@ -411,17 +443,33 @@ export default function Checkout() {
                 {finalPrice > 0 && (
                   <div className="space-y-3">
                     <h4 className="font-semibold">Payment Method</h4>
-                    <div className="flex items-center p-3 border rounded-lg">
-                      <div className="flex items-center">
-                        <div className="w-10 h-8 bg-blue-600 rounded flex items-center justify-center">
-                          <span className="text-white text-xs font-bold">SSL</span>
-                        </div>
-                        <div className="ml-3">
-                          <p className="font-medium text-sm">SSLCommerz</p>
-                          <p className="text-xs text-muted-foreground">Secure payment gateway</p>
-                        </div>
+                    <RadioGroup value={paymentMethod} onValueChange={(value: 'sslcommerz' | 'bkash') => setPaymentMethod(value)}>
+                      <div className="flex items-center space-x-2 p-3 border rounded-lg">
+                        <RadioGroupItem value="sslcommerz" id="sslcommerz" />
+                        <Label htmlFor="sslcommerz" className="flex items-center cursor-pointer flex-1">
+                          <div className="w-10 h-8 bg-blue-600 rounded flex items-center justify-center mr-3">
+                            <span className="text-white text-xs font-bold">SSL</span>
+                          </div>
+                          <div>
+                            <p className="font-medium text-sm">SSLCommerz</p>
+                            <p className="text-xs text-muted-foreground">Card, Mobile Banking & Internet Banking</p>
+                          </div>
+                        </Label>
                       </div>
-                    </div>
+                      
+                      <div className="flex items-center space-x-2 p-3 border rounded-lg">
+                        <RadioGroupItem value="bkash" id="bkash" />
+                        <Label htmlFor="bkash" className="flex items-center cursor-pointer flex-1">
+                          <div className="w-10 h-8 bg-pink-600 rounded flex items-center justify-center mr-3">
+                            <Smartphone className="h-4 w-4 text-white" />
+                          </div>
+                          <div>
+                            <p className="font-medium text-sm">bKash</p>
+                            <p className="text-xs text-muted-foreground">Mobile financial service</p>
+                          </div>
+                        </Label>
+                      </div>
+                    </RadioGroup>
                   </div>
                 )}
 
@@ -442,7 +490,7 @@ export default function Checkout() {
                     size="lg" 
                     className="w-full bg-gradient-primary hover:opacity-90"
                   >
-                    {enrolling ? "Processing..." : finalPrice === 0 ? "Enroll Free" : "Enroll Now - Pay with SSLCommerz"}
+                    {enrolling ? "Processing..." : finalPrice === 0 ? "Enroll Free" : `Enroll Now - Pay with ${paymentMethod === 'bkash' ? 'bKash' : 'SSLCommerz'}`}
                   </Button>
                 )}
 
