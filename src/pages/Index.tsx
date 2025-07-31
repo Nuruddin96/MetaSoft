@@ -1,5 +1,7 @@
 import { Hero } from "@/components/Hero";
 import { Features } from "@/components/Features";
+import { VideosSection } from "@/components/VideosSection";
+import { PartnersSection } from "@/components/PartnersSection";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { CourseCard } from "@/components/CourseCard";
@@ -115,7 +117,10 @@ const Index = () => {
         </div>
       </section>
 
+      
+      <VideosSection />
       <Features />
+      <PartnersSection />
     </div>
   );
 };

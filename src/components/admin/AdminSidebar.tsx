@@ -18,7 +18,10 @@ import {
   LogOut,
   Shield,
   Globe,
-  FileText
+  FileText,
+  Building,
+  Layout,
+  Video
 } from "lucide-react";
 
 const sidebarItems = [
@@ -43,7 +46,22 @@ const sidebarItems = [
   {
     title: "Pages",
     href: "/admin/pages",
-    icon: FileText,
+    icon: Building,
+  },
+  {
+    title: "Homepage Content",
+    href: "/admin/homepage-content",
+    icon: Layout,
+  },
+  {
+    title: "Videos",
+    href: "/admin/videos",
+    icon: Video,
+  },
+  {
+    title: "Partners",
+    href: "/admin/partners",
+    icon: Building,
     badge: null
   },
   {

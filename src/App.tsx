@@ -35,6 +35,9 @@ import HeroBannerManagement from "./pages/admin/HeroBannerManagement";
 import CustomPage from "./pages/CustomPage";
 import Categories from "./pages/Categories";
 import About from "./pages/About";
+import HomepageContentManagement from "./pages/admin/HomepageContentManagement";
+import VideoManagement from "./pages/admin/VideoManagement";
+import PartnersManagement from "./pages/admin/PartnersManagement";
 
 const queryClient = new QueryClient();
 
@@ -164,7 +167,31 @@ const AppContent = () => {
                 <ProtectedRoute requireAdmin>
                   <BkashConfigManagement />
                 </ProtectedRoute>
-              }
+              } 
+            />
+            <Route 
+              path="/admin/homepage-content" 
+              element={
+                <ProtectedRoute requireAdmin>
+                  <HomepageContentManagement />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/videos" 
+              element={
+                <ProtectedRoute requireAdmin>
+                  <VideoManagement />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/partners" 
+              element={
+                <ProtectedRoute requireAdmin>
+                  <PartnersManagement />
+                </ProtectedRoute>
+              } 
             />
             <Route 
               path="/admin/payments" 

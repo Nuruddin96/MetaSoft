@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      company_partners: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean | null
+          logo_url: string
+          name: string
+          order_index: number
+          updated_at: string
+          website_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          logo_url: string
+          name: string
+          order_index?: number
+          updated_at?: string
+          website_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          logo_url?: string
+          name?: string
+          order_index?: number
+          updated_at?: string
+          website_url?: string | null
+        }
+        Relationships: []
+      }
       course_categories: {
         Row: {
           created_at: string
@@ -319,6 +352,39 @@ export type Database = {
           },
         ]
       }
+      dynamic_features: {
+        Row: {
+          created_at: string
+          description: string | null
+          icon: string
+          id: string
+          is_active: boolean | null
+          order_index: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          icon: string
+          id?: string
+          is_active?: boolean | null
+          order_index?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          icon?: string
+          id?: string
+          is_active?: boolean | null
+          order_index?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       enrollments: {
         Row: {
           completed_at: string | null
@@ -561,6 +627,42 @@ export type Database = {
           key?: string
           updated_at?: string
           value?: Json | null
+        }
+        Relationships: []
+      }
+      youtube_videos: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean | null
+          order_index: number
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          video_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          order_index?: number
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          video_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          order_index?: number
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          video_id?: string
         }
         Relationships: []
       }

@@ -25,6 +25,12 @@ interface SiteSettings {
   social_youtube?: string;
   social_linkedin?: string;
   social_twitter?: string;
+  features_section_title?: string;
+  features_section_description?: string;
+  videos_section_title?: string;
+  videos_section_description?: string;
+  partners_section_title?: string;
+  partners_section_description?: string;
 }
 
 export const useSiteSettings = () => {
