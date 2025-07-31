@@ -108,7 +108,7 @@ export const Hero = () => {
 
   return (
     <section 
-      className="min-h-screen bg-gradient-hero relative overflow-hidden flex items-center transition-all duration-1000"
+      className="h-[60vh] bg-gradient-hero relative overflow-hidden flex items-center transition-all duration-1000"
       style={{
         backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined,
         backgroundSize: 'cover',

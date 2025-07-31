@@ -33,6 +33,8 @@ import SSLConfigManagement from "./pages/admin/SSLConfigManagement";
 import BkashConfigManagement from "./pages/admin/BkashConfigManagement";
 import HeroBannerManagement from "./pages/admin/HeroBannerManagement";
 import CustomPage from "./pages/CustomPage";
+import Categories from "./pages/Categories";
+import About from "./pages/About";
 
 const queryClient = new QueryClient();
 
@@ -48,6 +50,8 @@ const AppContent = () => {
         <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/courses" element={<Courses />} />
+            <Route path="/categories" element={<Categories />} />
+            <Route path="/about" element={<About />} />
             <Route path="/course/:id" element={<CourseDetails />} />
             <Route path="/checkout/:id" element={<Checkout />} />
             <Route path="/dashboard" element={<Dashboard />} />

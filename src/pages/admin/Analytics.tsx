@@ -199,7 +199,7 @@ export default function Analytics() {
             <CardContent>
               <div className="space-y-4">
                 {analytics.topCourses.map((course, index) => (
-                  <div key={course.title} className="flex items-center justify-between p-3 border rounded-lg">
+                  <div key={`${course.title}-${index}`} className="flex items-center justify-between p-3 border rounded-lg">
                     <div>
                       <p className="font-medium text-sm">{course.title}</p>
                       <p className="text-xs text-muted-foreground">
