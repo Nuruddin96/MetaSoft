@@ -1,1 +1,10 @@
 project_id = "rkpyvtragdluawzrlxbi"
+
+[functions.bkash-payment]
+verify_jwt = false
+
+[functions.sslcommerz-payment]
+verify_jwt = false
+
+[functions.sslcommerz-ipn]
+verify_jwt = false
