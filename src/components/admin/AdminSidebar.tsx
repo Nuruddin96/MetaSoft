@@ -65,6 +65,12 @@ const sidebarItems = [
     badge: null
   },
   {
+    title: "About Page",
+    href: "/admin/about-page",
+    icon: FileText,
+    badge: null
+  },
+  {
     title: "Course Management",
     href: "/admin/courses",
     icon: BookOpen,

@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      about_page_content: {
+        Row: {
+          content: string | null
+          created_at: string
+          id: string
+          is_active: boolean | null
+          section_key: string
+          stats: Json | null
+          subtitle: string | null
+          team_members: Json | null
+          title: string | null
+          updated_at: string
+          values: Json | null
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          section_key: string
+          stats?: Json | null
+          subtitle?: string | null
+          team_members?: Json | null
+          title?: string | null
+          updated_at?: string
+          values?: Json | null
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          section_key?: string
+          stats?: Json | null
+          subtitle?: string | null
+          team_members?: Json | null
+          title?: string | null
+          updated_at?: string
+          values?: Json | null
+        }
+        Relationships: []
+      }
       company_partners: {
         Row: {
           created_at: string

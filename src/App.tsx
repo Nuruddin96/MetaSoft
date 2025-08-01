@@ -38,6 +38,7 @@ import About from "./pages/About";
 import HomepageContentManagement from "./pages/admin/HomepageContentManagement";
 import VideoManagement from "./pages/admin/VideoManagement";
 import PartnersManagement from "./pages/admin/PartnersManagement";
+import AboutPageManagement from "./pages/admin/AboutPageManagement";
 
 const queryClient = new QueryClient();
 
@@ -194,6 +195,14 @@ const AppContent = () => {
               } 
             />
             <Route 
+              path="/admin/about-page" 
+              element={
+                <ProtectedRoute requireAdmin>
+                  <AboutPageManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/admin/payments" 
               element={
                 <ProtectedRoute requireAdmin>
