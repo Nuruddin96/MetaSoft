@@ -161,7 +161,7 @@ export default function PartnersManagement() {
     setIsCreating(false);
   };
 
-  const handleLogoUpload = (url: string) => {
+  const handleLogoUpload = (url: string, fileName: string, fileSize: number) => {
     setFormData(prev => ({ ...prev, logo_url: url }));
   };
 
@@ -215,7 +215,11 @@ export default function PartnersManagement() {
                 <div>
                   <Label htmlFor="logo">Company Logo</Label>
                   <FileUpload
-                    onUploadComplete={handleLogoUpload}
+                    onFileUploaded={handleLogoUpload}
+                    acceptedTypes="image/*"
+                    bucketName="course-thumbnails"
+                    folder="partner-logos"
+                    maxSize={5}
                   />
                   {formData.logo_url && (
                     <div className="mt-2">
