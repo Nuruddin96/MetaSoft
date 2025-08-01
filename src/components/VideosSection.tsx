@@ -67,7 +67,7 @@ export const VideosSection = () => {
   };
 
   const openVideoModal = (videoId: string) => {
-    window.open(`https://www.youtube.com/watch?v=${videoId}`, '_blank');
+    window.open(`https://www.youtube.com/watch?v=${videoId}`, '_blank', 'noopener,noreferrer');
   };
 
   if (loading) {

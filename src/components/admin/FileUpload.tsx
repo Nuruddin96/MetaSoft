@@ -61,6 +61,10 @@ export const FileUpload = ({
       const isAllowed = allowedTypes.some(type => {
         if (type.startsWith('.')) {
           return fileName.endsWith(type);
+        } else if (type.includes('*')) {
+          // Handle patterns like "image/*"
+          const mainType = type.split('/')[0];
+          return fileType.startsWith(mainType + '/');
         } else {
           return fileType.startsWith(type);
         }
