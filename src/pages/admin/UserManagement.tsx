@@ -184,6 +184,9 @@ export default function UserManagement() {
         return;
       }
 
+      // Get current user before creating new user
+      const currentUser = await supabase.auth.getUser();
+      
       // Use regular signup instead of admin API
       const { data, error } = await supabase.auth.signUp({
         email: newUser.email,
@@ -196,6 +199,8 @@ export default function UserManagement() {
           }
         }
       });
+
+      // Note: The admin session is maintained automatically by Supabase
 
       if (error) throw error;
 

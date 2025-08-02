@@ -2,6 +2,7 @@ import { Hero } from "@/components/Hero";
 import { Features } from "@/components/Features";
 import { VideosSection } from "@/components/VideosSection";
 import { PartnersSection } from "@/components/PartnersSection";
+import { ServicesSection } from "@/components/ServicesSection";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { CourseCard } from "@/components/CourseCard";
@@ -118,6 +119,7 @@ const Index = () => {
       </section>
 
       
+      <ServicesSection />
       <VideosSection />
       <Features />
       <PartnersSection />

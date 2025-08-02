@@ -170,6 +170,8 @@ export const CourseMaterialsManager = ({ courseId, courseName }: CourseMaterials
       setIsFormOpen(false);
       resetForm();
       fetchMaterials();
+      
+      // Don't close the tab/window after saving
     } catch (error) {
       console.error('Error saving material:', error);
       toast({

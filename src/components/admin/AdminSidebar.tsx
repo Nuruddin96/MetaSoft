@@ -70,6 +70,11 @@ const sidebarItems = [
         href: "/admin/about-page",
         icon: FileText,
       },
+      {
+        title: "Services",
+        href: "/admin/services",
+        icon: Settings,
+      },
     ]
   },
   {

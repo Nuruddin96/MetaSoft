@@ -147,6 +147,8 @@ serve(async (req) => {
     const baseUrl = config.is_live 
       ? 'https://tokenized.pay.bka.sh' 
       : 'https://tokenized.sandbox.bka.sh';
+    
+    console.log('Using bKash API base URL:', baseUrl);
 
     // Step 1: Grant Token
     console.log('Step 1: Requesting bKash grant token');
@@ -162,6 +164,9 @@ serve(async (req) => {
         app_key: config.app_key,
         app_secret: config.app_secret
       })
+    }).catch(error => {
+      console.error('Network error during token request:', error);
+      throw new Error('SSL/Network error: Unable to connect to bKash API');
     });
 
     const tokenData = await tokenResponse.json();
@@ -201,6 +206,9 @@ serve(async (req) => {
         'x-app-key': config.app_key
       },
       body: JSON.stringify(paymentPayload)
+    }).catch(error => {
+      console.error('Network error during payment creation:', error);
+      throw new Error('SSL/Network error: Unable to create payment with bKash API');
     });
 
     const paymentData = await paymentResponse.json();
