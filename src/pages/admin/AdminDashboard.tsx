@@ -12,8 +12,10 @@ import {
   AlertCircle,
   CheckCircle,
   Clock,
-  Star
+  Star,
+  ExternalLink
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface DashboardStats {
   totalStudents: number;
@@ -158,11 +160,19 @@ export default function AdminDashboard() {
     <AdminLayout>
       <div className="space-y-6">
         {/* Page Header */}
-        <div>
-          <h1 className="text-3xl font-bold">Dashboard</h1>
-          <p className="text-muted-foreground">
-            Welcome back! Here's what's happening with MetaSoft BD today.
-          </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Dashboard</h1>
+            <p className="text-muted-foreground">
+              Welcome back! Here's what's happening with MetaSoft BD today.
+            </p>
+          </div>
+          <Button asChild>
+            <Link to="/" target="_blank" rel="noopener noreferrer">
+              <ExternalLink className="h-4 w-4 mr-2" />
+              Visit Website
+            </Link>
+          </Button>
         </div>
 
         {/* Stats Grid */}

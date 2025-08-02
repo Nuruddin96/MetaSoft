@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   LayoutDashboard,
   Users,
@@ -21,7 +22,10 @@ import {
   FileText,
   Building,
   Layout,
-  Video
+  Video,
+  ChevronDown,
+  ChevronRight,
+  Monitor
 } from "lucide-react";
 
 const sidebarItems = [
@@ -32,61 +36,88 @@ const sidebarItems = [
     badge: null
   },
   {
-    title: "User Management",
-    href: "/admin/users",
-    icon: Users,
-    badge: null
-  },
-  {
     title: "Website",
-    href: "/admin/website",
     icon: Globe,
-    badge: null
+    isDropdown: true,
+    children: [
+      {
+        title: "Header Management",
+        href: "/admin/header",
+        icon: Monitor,
+      },
+      {
+        title: "Pages",
+        href: "/admin/pages",
+        icon: FileText,
+      },
+      {
+        title: "Homepage Content",
+        href: "/admin/homepage-content",
+        icon: Layout,
+      },
+      {
+        title: "Videos",
+        href: "/admin/videos",
+        icon: Video,
+      },
+      {
+        title: "Partners",
+        href: "/admin/partners",
+        icon: Building,
+      },
+      {
+        title: "About Page",
+        href: "/admin/about-page",
+        icon: FileText,
+      },
+    ]
   },
   {
-    title: "Pages",
-    href: "/admin/pages",
-    icon: Building,
-  },
-  {
-    title: "Homepage Content",
-    href: "/admin/homepage-content",
-    icon: Layout,
-  },
-  {
-    title: "Videos",
-    href: "/admin/videos",
-    icon: Video,
-  },
-  {
-    title: "Partners",
-    href: "/admin/partners",
-    icon: Building,
-    badge: null
-  },
-  {
-    title: "About Page",
-    href: "/admin/about-page",
-    icon: FileText,
-    badge: null
-  },
-  {
-    title: "Course Management",
-    href: "/admin/courses",
-    icon: BookOpen,
-    badge: "12 pending"
-  },
-  {
-    title: "Enrollments",
-    href: "/admin/enrollments",
-    icon: GraduationCap,
-    badge: null
+    title: "User Management",
+    icon: Users,
+    isDropdown: true,
+    children: [
+      {
+        title: "Users",
+        href: "/admin/users",
+        icon: Users,
+      },
+      {
+        title: "Enrollments",
+        href: "/admin/enrollments",
+        icon: GraduationCap,
+      },
+      {
+        title: "Course Management",
+        href: "/admin/courses",
+        icon: BookOpen,
+        badge: "12 pending"
+      },
+    ]
   },
   {
     title: "Payments",
-    href: "/admin/payments",
     icon: CreditCard,
-    badge: "3 refunds"
+    isDropdown: true,
+    badge: "3 refunds",
+    children: [
+      {
+        title: "Payments",
+        href: "/admin/payments",
+        icon: CreditCard,
+        badge: "3 refunds"
+      },
+      {
+        title: "SSL Configuration",
+        href: "/admin/ssl-config",
+        icon: Shield,
+      },
+      {
+        title: "bKash Configuration",
+        href: "/admin/bkash-config",
+        icon: CreditCard,
+      },
+    ]
   },
   {
     title: "Analytics",
@@ -99,18 +130,6 @@ const sidebarItems = [
     href: "/admin/notifications",
     icon: Bell,
     badge: "5 new"
-  },
-  {
-    title: "SSL Configuration",
-    href: "/admin/ssl-config",
-    icon: Shield,
-    badge: null
-  },
-  {
-    title: "bKash Configuration",
-    href: "/admin/bkash-config",
-    icon: CreditCard,
-    badge: null
   },
   {
     title: "Settings",
@@ -127,6 +146,25 @@ interface AdminSidebarProps {
 
 export const AdminSidebar = ({ isOpen, onToggle }: AdminSidebarProps) => {
   const location = useLocation();
+  const [openDropdowns, setOpenDropdowns] = useState<string[]>([]);
+
+  const toggleDropdown = (title: string) => {
+    setOpenDropdowns(prev => 
+      prev.includes(title) 
+        ? prev.filter(item => item !== title)
+        : [...prev, title]
+    );
+  };
+
+  const isItemActive = (item: any) => {
+    if (item.href) {
+      return location.pathname === item.href;
+    }
+    if (item.children) {
+      return item.children.some((child: any) => location.pathname === child.href);
+    }
+    return false;
+  };
 
   return (
     <>
@@ -170,13 +208,87 @@ export const AdminSidebar = ({ isOpen, onToggle }: AdminSidebarProps) => {
           <ScrollArea className="flex-1 px-3">
             <nav className="space-y-2 py-4">
               {sidebarItems.map((item) => {
-                const isActive = location.pathname === item.href;
+                const isActive = isItemActive(item);
+                const isDropdownOpen = openDropdowns.includes(item.title);
+                
+                if (item.isDropdown) {
+                  return (
+                    <Collapsible
+                      key={item.title}
+                      open={isDropdownOpen}
+                      onOpenChange={() => toggleDropdown(item.title)}
+                    >
+                      <CollapsibleTrigger asChild>
+                        <button
+                          className={cn(
+                            "flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm transition-all hover:bg-accent hover:text-accent-foreground",
+                            isActive 
+                              ? "bg-accent text-accent-foreground" 
+                              : "text-muted-foreground"
+                          )}
+                        >
+                          <div className="flex items-center space-x-3">
+                            <item.icon className="h-4 w-4" />
+                            <span className="font-medium">{item.title}</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            {item.badge && (
+                              <Badge variant="outline" className="text-xs">
+                                {item.badge}
+                              </Badge>
+                            )}
+                            {isDropdownOpen ? (
+                              <ChevronDown className="h-4 w-4" />
+                            ) : (
+                              <ChevronRight className="h-4 w-4" />
+                            )}
+                          </div>
+                        </button>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent className="space-y-1 mt-1">
+                        {item.children?.map((child: any) => {
+                          const isChildActive = location.pathname === child.href;
+                          return (
+                            <Link
+                              key={child.href}
+                              to={child.href}
+                              onClick={() => {
+                                if (window.innerWidth < 1024) {
+                                  onToggle();
+                                }
+                              }}
+                              className={cn(
+                                "flex items-center justify-between rounded-lg px-6 py-2 text-sm transition-all hover:bg-accent hover:text-accent-foreground ml-3",
+                                isChildActive 
+                                  ? "bg-primary text-primary-foreground shadow-md" 
+                                  : "text-muted-foreground"
+                              )}
+                            >
+                              <div className="flex items-center space-x-3">
+                                <child.icon className="h-4 w-4" />
+                                <span className="font-medium">{child.title}</span>
+                              </div>
+                              {child.badge && (
+                                <Badge 
+                                  variant={isChildActive ? "secondary" : "outline"} 
+                                  className="text-xs"
+                                >
+                                  {child.badge}
+                                </Badge>
+                              )}
+                            </Link>
+                          );
+                        })}
+                      </CollapsibleContent>
+                    </Collapsible>
+                  );
+                }
+
                 return (
                   <Link
                     key={item.href}
-                    to={item.href}
+                    to={item.href!}
                     onClick={() => {
-                      // Close sidebar on mobile after navigation
                       if (window.innerWidth < 1024) {
                         onToggle();
                       }

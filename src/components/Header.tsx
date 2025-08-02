@@ -1,12 +1,33 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, BookOpen, User, ShoppingCart, LogOut } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [branding, setBranding] = useState({ site_name: 'MetaSoft BD', logo_url: null });
   const { user, signOut, isAdmin } = useAuth();
+
+  useEffect(() => {
+    fetchBranding();
+  }, []);
+
+  const fetchBranding = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('site_branding')
+        .select('*')
+        .single();
+
+      if (data) {
+        setBranding(data);
+      }
+    } catch (error) {
+      console.error('Error fetching site branding:', error);
+    }
+  };
 
   return (
     <header className="bg-card/80 backdrop-blur-md border-b border-border/50 sticky top-0 z-50">
@@ -14,11 +35,19 @@ export const Header = () => {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <BookOpen className="h-5 w-5 text-primary-foreground" />
-            </div>
+            {branding.logo_url ? (
+              <img 
+                src={branding.logo_url} 
+                alt={branding.site_name}
+                className="w-8 h-8 object-contain"
+              />
+            ) : (
+              <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+                <BookOpen className="h-5 w-5 text-primary-foreground" />
+              </div>
+            )}
             <span className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              MetaSoft BD
+              {branding.site_name}
             </span>
           </Link>
 
