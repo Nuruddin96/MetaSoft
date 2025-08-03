@@ -175,7 +175,20 @@ All colors MUST be HSL.
   opacity: 0;
 }
 
-.animate-fade-in-delay-4 {
-  animation: fade-in-delay-4 0.8s ease-out 0.8s forwards;
-  opacity: 0;
-}
+  .animate-fade-in-delay-4 {
+    animation: fade-in-delay-4 0.8s ease-out 0.8s forwards;
+    opacity: 0;
+  }
+
+  /* Enhanced smooth transitions */
+  * {
+    @apply transition-colors duration-300 ease-in-out;
+  }
+  
+  button, .hover-scale, a {
+    @apply transition-all duration-300 ease-in-out;
+  }
+  
+  button:hover, .hover-scale:hover {
+    @apply transform scale-105;
+  }

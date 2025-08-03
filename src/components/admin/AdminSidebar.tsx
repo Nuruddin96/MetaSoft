@@ -75,6 +75,11 @@ const sidebarItems = [
         href: "/admin/services",
         icon: Settings,
       },
+      {
+        title: "Image Gallery",
+        href: "/admin/image-gallery",
+        icon: Layout,
+      },
     ]
   },
   {

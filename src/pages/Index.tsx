@@ -3,6 +3,7 @@ import { Features } from "@/components/Features";
 import { VideosSection } from "@/components/VideosSection";
 import { PartnersSection } from "@/components/PartnersSection";
 import { ServicesSection } from "@/components/ServicesSection";
+import { ImageGallery } from "@/components/ImageGallery";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { CourseCard } from "@/components/CourseCard";
@@ -121,6 +122,7 @@ const Index = () => {
       
       <ServicesSection />
       <VideosSection />
+      <ImageGallery />
       <Features />
       <PartnersSection />
     </div>

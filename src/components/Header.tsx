@@ -12,6 +12,21 @@ export const Header = () => {
 
   useEffect(() => {
     fetchBranding();
+    
+    // Set up real-time subscription for branding changes
+    const subscription = supabase
+      .channel('site_branding_changes')
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'site_branding' },
+        () => {
+          fetchBranding();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(subscription);
+    };
   }, []);
 
   const fetchBranding = async () => {

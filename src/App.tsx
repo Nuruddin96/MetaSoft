@@ -41,6 +41,9 @@ import PartnersManagement from "./pages/admin/PartnersManagement";
 import AboutPageManagement from "./pages/admin/AboutPageManagement";
 import HeaderManagement from "./pages/admin/HeaderManagement";
 import ServicesManagement from "./pages/admin/ServicesManagement";
+import { ImageGalleryManagement } from "./pages/admin/ImageGalleryManagement";
+import { ServiceDetail } from "./pages/ServiceDetail";
+import { ResetPassword } from "./pages/ResetPassword";
 
 const queryClient = new QueryClient();
 
@@ -220,6 +223,16 @@ const AppContent = () => {
                 </ProtectedRoute>
               }
             />
+            <Route 
+              path="/admin/image-gallery" 
+              element={
+                <ProtectedRoute requireAdmin>
+                  <ImageGalleryManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/service/:id" element={<ServiceDetail />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route
               path="/admin/payments" 
               element={

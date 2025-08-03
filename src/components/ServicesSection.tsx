@@ -12,6 +12,7 @@ import {
   Star
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 interface Service {
   id: string;
@@ -120,10 +121,13 @@ export const ServicesSection = () => {
                   </div>
                   <Button 
                     variant="ghost" 
-                    className="w-full mt-4 group-hover:bg-gradient-primary group-hover:text-primary-foreground transition-all"
+                    className="w-full mt-4 group-hover:bg-gradient-primary group-hover:text-primary-foreground transition-all duration-300 hover:scale-105"
+                    asChild
                   >
-                    Learn More
-                    <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                    <Link to={`/service/${service.id}`}>
+                      Learn More
+                      <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
+                    </Link>
                   </Button>
                 </CardContent>
               </Card>

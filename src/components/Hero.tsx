@@ -108,7 +108,7 @@ export const Hero = () => {
 
   return (
     <section 
-      className="h-[60vh] bg-gradient-hero relative overflow-hidden flex items-center transition-all duration-1000"
+      className="min-h-[60vh] sm:min-h-[70vh] lg:min-h-[80vh] bg-gradient-hero relative overflow-hidden flex items-center transition-all duration-1000"
       style={{
         backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined,
         backgroundSize: 'cover',
@@ -138,9 +138,9 @@ export const Hero = () => {
         </>
       )}
       
-      <div className="container mx-auto px-4 py-20 relative z-10">
-        <div className="flex flex-col items-center justify-center text-center">
-          <div className="text-center">
+      <div className="container mx-auto px-4 py-12 sm:py-16 lg:py-20 relative z-10">
+        <div className="flex flex-col items-center justify-center text-center max-w-5xl mx-auto">
+          <div className="text-center w-full">
             {settings.banner_text && (
               <div className="inline-flex items-center px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-white/90 text-sm font-medium mb-6 animate-fade-in">
                 <Star className="h-4 w-4 mr-2 text-yellow-300" />
@@ -148,12 +148,12 @@ export const Hero = () => {
               </div>
             )}
             
-            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight animate-slide-up">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight animate-slide-up px-4">
               {settings.hero_title || currentBanner.title}
             </h1>
             
             {(settings.hero_subtitle || currentBanner.subtitle) && (
-              <p className="text-xl text-white/90 mb-8 leading-relaxed animate-slide-up" style={{animationDelay: '0.2s'}}>
+              <p className="text-lg sm:text-xl text-white/90 mb-8 leading-relaxed animate-slide-up px-4 max-w-3xl" style={{animationDelay: '0.2s'}}>
                 {settings.hero_subtitle || currentBanner.subtitle}
               </p>
             )}
