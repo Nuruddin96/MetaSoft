@@ -108,11 +108,12 @@ export const Hero = () => {
 
   return (
     <section 
-      className="min-h-[60vh] sm:min-h-[70vh] lg:min-h-[80vh] bg-gradient-hero relative overflow-hidden flex items-center transition-all duration-1000"
+      className="min-h-[50vh] sm:min-h-[60vh] lg:min-h-[70vh] bg-gradient-hero relative overflow-hidden flex items-center transition-all duration-1000"
       style={{
         backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
       }}
     >
       {/* Background overlay */}
