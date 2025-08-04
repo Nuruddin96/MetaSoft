@@ -41,6 +41,7 @@ import PartnersManagement from "./pages/admin/PartnersManagement";
 import AboutPageManagement from "./pages/admin/AboutPageManagement";
 import HeaderManagement from "./pages/admin/HeaderManagement";
 import ServicesManagement from "./pages/admin/ServicesManagement";
+import CategoryManagement from "./pages/admin/CategoryManagement";
 import { ImageGalleryManagement } from "./pages/admin/ImageGalleryManagement";
 import { ServiceDetail } from "./pages/ServiceDetail";
 import { ResetPassword } from "./pages/ResetPassword";
@@ -220,6 +221,14 @@ const AppContent = () => {
               element={
                 <ProtectedRoute requireAdmin>
                   <ServicesManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route 
+              path="/admin/categories" 
+              element={
+                <ProtectedRoute requireAdmin>
+                  <CategoryManagement />
                 </ProtectedRoute>
               }
             />

@@ -140,8 +140,8 @@ export const Hero = () => {
       )}
       
       <div className="container mx-auto px-4 py-12 sm:py-16 lg:py-20 relative z-10">
-        <div className="flex flex-col items-center justify-center text-center max-w-5xl mx-auto">
-          <div className="text-center w-full">
+        <div className="flex flex-col items-center justify-center text-center max-w-5xl mx-auto h-full">
+          <div className="text-center w-full flex flex-col items-center justify-center">
             {settings.banner_text && (
               <div className="inline-flex items-center px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-white/90 text-sm font-medium mb-6 animate-fade-in">
                 <Star className="h-4 w-4 mr-2 text-yellow-300" />

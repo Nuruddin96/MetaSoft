@@ -4,6 +4,7 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge";
 import { Clock, Users, Star, Play } from "lucide-react";
 import { Link } from "react-router-dom";
+import { CoursePreview } from "@/components/CoursePreview";
 
 interface CourseCardProps {
   id: string;
@@ -18,6 +19,7 @@ interface CourseCardProps {
   category: string;
   level: "beginner" | "intermediate" | "advanced";
   short_description?: string;
+  video_preview_url?: string;
 }
 
 export const CourseCard = ({ 
@@ -32,7 +34,8 @@ export const CourseCard = ({
   thumbnail_url, 
   category, 
   level,
-  short_description
+  short_description,
+  video_preview_url
 }: CourseCardProps) => {
   const discount = discounted_price ? Math.round(((price - discounted_price) / price) * 100) : 0;
   const duration = duration_hours ? `${duration_hours}h` : "N/A";
@@ -47,22 +50,12 @@ export const CourseCard = ({
       <Card className="overflow-hidden hover:shadow-glow transition-all duration-300 hover:-translate-y-1 bg-gradient-card border-border/50">
         <div className="relative">
           <div className="aspect-video bg-muted rounded-t-lg overflow-hidden">
-            {thumbnail_url ? (
-              <img 
-                src={thumbnail_url} 
-                alt={title}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full bg-muted flex items-center justify-center">
-                <Play className="h-12 w-12 text-muted-foreground" />
-              </div>
-            )}
-            <div className="absolute inset-0 bg-black/20 opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-              <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center">
-                <Play className="h-5 w-5 text-primary ml-0.5" />
-              </div>
-            </div>
+            <CoursePreview
+              thumbnailUrl={thumbnail_url}
+              videoPreviewUrl={video_preview_url}
+              title={title}
+              className="w-full h-full"
+            />
           </div>
           
           {discount > 0 && (

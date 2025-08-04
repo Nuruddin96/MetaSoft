@@ -80,6 +80,11 @@ const sidebarItems = [
         href: "/admin/image-gallery",
         icon: Layout,
       },
+      {
+        title: "Categories",
+        href: "/admin/categories",
+        icon: BookOpen,
+      },
     ]
   },
   {
