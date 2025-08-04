@@ -116,6 +116,33 @@ export type Database = {
         }
         Relationships: []
       }
+      course_levels: {
+        Row: {
+          created_at: string | null
+          display_order: number
+          id: string
+          is_active: boolean | null
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          display_order?: number
+          id?: string
+          is_active?: boolean | null
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          display_order?: number
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       course_materials: {
         Row: {
           content_type: string | null
@@ -588,6 +615,54 @@ export type Database = {
           },
         ]
       }
+      marketing_performance: {
+        Row: {
+          campaign_type: string | null
+          client_logo_url: string | null
+          client_name: string
+          created_at: string | null
+          end_date: string | null
+          id: string
+          industry: string | null
+          is_active: boolean | null
+          is_featured: boolean | null
+          metrics: Json | null
+          results_summary: string | null
+          start_date: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          campaign_type?: string | null
+          client_logo_url?: string | null
+          client_name: string
+          created_at?: string | null
+          end_date?: string | null
+          id?: string
+          industry?: string | null
+          is_active?: boolean | null
+          is_featured?: boolean | null
+          metrics?: Json | null
+          results_summary?: string | null
+          start_date?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          campaign_type?: string | null
+          client_logo_url?: string | null
+          client_name?: string
+          created_at?: string | null
+          end_date?: string | null
+          id?: string
+          industry?: string | null
+          is_active?: boolean | null
+          is_featured?: boolean | null
+          metrics?: Json | null
+          results_summary?: string | null
+          start_date?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       payments: {
         Row: {
           amount: number
@@ -759,6 +834,45 @@ export type Database = {
           key?: string
           updated_at?: string
           value?: Json | null
+        }
+        Relationships: []
+      }
+      software_demos: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          demo_url: string
+          description: string | null
+          id: string
+          is_active: boolean | null
+          order_index: number | null
+          thumbnail_url: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          demo_url: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          order_index?: number | null
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          demo_url?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          order_index?: number | null
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
