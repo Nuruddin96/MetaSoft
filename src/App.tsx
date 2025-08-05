@@ -43,6 +43,8 @@ import HeaderManagement from "./pages/admin/HeaderManagement";
 import ServicesManagement from "./pages/admin/ServicesManagement";
 import CategoryManagement from "./pages/admin/CategoryManagement";
 import { ImageGalleryManagement } from "./pages/admin/ImageGalleryManagement";
+import SoftwareDemoManagement from "./pages/admin/SoftwareDemoManagement";
+import SupportTicketManagement from "./pages/admin/SupportTicketManagement";
 import { ServiceDetail } from "./pages/ServiceDetail";
 import { ResetPassword } from "./pages/ResetPassword";
 
@@ -229,6 +231,22 @@ const AppContent = () => {
               element={
                 <ProtectedRoute requireAdmin>
                   <CategoryManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route 
+              path="/admin/software-demos" 
+              element={
+                <ProtectedRoute requireAdmin>
+                  <SoftwareDemoManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route 
+              path="/admin/support-tickets" 
+              element={
+                <ProtectedRoute requireAdmin>
+                  <SupportTicketManagement />
                 </ProtectedRoute>
               }
             />

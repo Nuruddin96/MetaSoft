@@ -42,13 +42,32 @@ export default function PaymentSuccess() {
 
   const verifyPayment = async () => {
     try {
+      // First check if payment exists and get status
       const { data: payment, error } = await supabase
         .from('payments')
-        .select('status')
+        .select('status, transaction_id')
         .eq('transaction_id', tranId)
         .single();
 
       if (error) throw error;
+
+      // If payment is still pending, try to verify with bKash
+      if (payment.status === 'pending') {
+        try {
+          const { data: verificationResult } = await supabase.functions.invoke('bkash-verify-payment', {
+            body: { paymentID: payment.transaction_id }
+          });
+
+          if (verificationResult?.success) {
+            toast({
+              title: "Payment Verified!",
+              description: "Your payment has been confirmed and enrollment is complete.",
+            });
+          }
+        } catch (verifyError) {
+          console.log('Verification attempt failed, payment may still be processing');
+        }
+      }
 
       if (payment.status === 'completed') {
         toast({
@@ -57,9 +76,8 @@ export default function PaymentSuccess() {
         });
       } else {
         toast({
-          title: "Payment Pending",
+          title: "Payment Processing",
           description: "Your payment is being processed. You'll receive confirmation shortly.",
-          variant: "destructive",
         });
       }
     } catch (error) {

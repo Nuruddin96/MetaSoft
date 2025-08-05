@@ -85,6 +85,16 @@ const sidebarItems = [
         href: "/admin/categories",
         icon: BookOpen,
       },
+      {
+        title: "Software Demos",
+        href: "/admin/software-demos",
+        icon: Monitor,
+      },
+      {
+        title: "Support Tickets",
+        href: "/admin/support-tickets",
+        icon: Shield,
+      },
     ]
   },
   {
