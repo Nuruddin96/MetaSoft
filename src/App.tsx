@@ -46,6 +46,10 @@ import { ImageGalleryManagement } from "./pages/admin/ImageGalleryManagement";
 import SoftwareDemoManagement from "./pages/admin/SoftwareDemoManagement";
 import SupportTicketManagement from "./pages/admin/SupportTicketManagement";
 import { ServiceDetail } from "./pages/ServiceDetail";
+import SoftwareDevelopment from "./pages/SoftwareDevelopment";
+import DigitalMarketing from "./pages/DigitalMarketing";
+import Ebooks from "./pages/Ebooks";
+import TechnicalSupport from "./pages/TechnicalSupport";
 import { ResetPassword } from "./pages/ResetPassword";
 
 const queryClient = new QueryClient();
@@ -259,6 +263,10 @@ const AppContent = () => {
               }
             />
             <Route path="/service/:id" element={<ServiceDetail />} />
+            <Route path="/software-development" element={<SoftwareDevelopment />} />
+            <Route path="/digital-marketing" element={<DigitalMarketing />} />
+            <Route path="/ebooks" element={<Ebooks />} />
+            <Route path="/technical-support" element={<TechnicalSupport />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route
               path="/admin/payments" 

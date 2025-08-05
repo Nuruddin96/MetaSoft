@@ -32,6 +32,23 @@ const iconMap: Record<string, any> = {
   HeadphonesIcon: Headphones,
 };
 
+const getServiceRoute = (serviceName: string): string => {
+  switch (serviceName) {
+    case 'Software Development':
+      return '/software-development';
+    case 'Online Courses':
+      return '/courses';
+    case 'E-books':
+      return '/ebooks';
+    case 'Digital Marketing':
+      return '/digital-marketing';
+    case 'Technical Support':
+      return '/technical-support';
+    default:
+      return `/service/${serviceName.toLowerCase().replace(/\s+/g, '-')}`;
+  }
+};
+
 export const ServicesSection = () => {
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
@@ -124,7 +141,7 @@ export const ServicesSection = () => {
                     className="w-full mt-4 group-hover:bg-gradient-primary group-hover:text-primary-foreground transition-all duration-300 hover:scale-105"
                     asChild
                   >
-                    <Link to={`/service/${service.id}`}>
+                    <Link to={getServiceRoute(service.name)}>
                       Learn More
                       <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
                     </Link>
