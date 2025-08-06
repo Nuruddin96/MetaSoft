@@ -45,6 +45,8 @@ import CategoryManagement from "./pages/admin/CategoryManagement";
 import { ImageGalleryManagement } from "./pages/admin/ImageGalleryManagement";
 import SoftwareDemoManagement from "./pages/admin/SoftwareDemoManagement";
 import SupportTicketManagement from "./pages/admin/SupportTicketManagement";
+import { LandingPageManagement } from "./pages/admin/LandingPageManagement";
+import { LandingPage } from "./pages/LandingPage";
 import { ServiceDetail } from "./pages/ServiceDetail";
 import SoftwareDevelopment from "./pages/SoftwareDevelopment";
 import DigitalMarketing from "./pages/DigitalMarketing";
@@ -262,6 +264,15 @@ const AppContent = () => {
                 </ProtectedRoute>
               }
             />
+            <Route 
+              path="/admin/landing-page" 
+              element={
+                <ProtectedRoute requireAdmin>
+                  <LandingPageManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/landing" element={<LandingPage />} />
             <Route path="/service/:id" element={<ServiceDetail />} />
             <Route path="/software-development" element={<SoftwareDevelopment />} />
             <Route path="/digital-marketing" element={<DigitalMarketing />} />

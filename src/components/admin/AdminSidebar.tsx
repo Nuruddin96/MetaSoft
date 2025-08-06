@@ -95,6 +95,11 @@ const sidebarItems = [
         href: "/admin/support-tickets",
         icon: Shield,
       },
+      {
+        title: "Landing Page",
+        href: "/admin/landing-page",
+        icon: FileText,
+      },
     ]
   },
   {

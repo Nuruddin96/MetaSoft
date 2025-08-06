@@ -421,6 +421,42 @@ export type Database = {
           },
         ]
       }
+      customer_review_videos: {
+        Row: {
+          created_at: string
+          customer_name: string | null
+          id: string
+          is_active: boolean | null
+          order_index: number
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          video_url: string
+        }
+        Insert: {
+          created_at?: string
+          customer_name?: string | null
+          id?: string
+          is_active?: boolean | null
+          order_index?: number
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          video_url: string
+        }
+        Update: {
+          created_at?: string
+          customer_name?: string | null
+          id?: string
+          is_active?: boolean | null
+          order_index?: number
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          video_url?: string
+        }
+        Relationships: []
+      }
       dynamic_features: {
         Row: {
           created_at: string
@@ -613,6 +649,93 @@ export type Database = {
           order_index?: number
           title?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      landing_page_orders: {
+        Row: {
+          address: string | null
+          created_at: string
+          customer_name: string
+          email: string
+          id: string
+          notes: string | null
+          phone: string
+          product: string | null
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          customer_name: string
+          email: string
+          id?: string
+          notes?: string | null
+          phone: string
+          product?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          customer_name?: string
+          email?: string
+          id?: string
+          notes?: string | null
+          phone?: string
+          product?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      landing_page_sections: {
+        Row: {
+          bullet_points: Json | null
+          content: string | null
+          created_at: string
+          cta_text: string | null
+          cta_url: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean | null
+          order_index: number
+          section_type: string
+          title: string | null
+          updated_at: string
+          video_url: string | null
+        }
+        Insert: {
+          bullet_points?: Json | null
+          content?: string | null
+          created_at?: string
+          cta_text?: string | null
+          cta_url?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          order_index?: number
+          section_type: string
+          title?: string | null
+          updated_at?: string
+          video_url?: string | null
+        }
+        Update: {
+          bullet_points?: Json | null
+          content?: string | null
+          created_at?: string
+          cta_text?: string | null
+          cta_url?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          order_index?: number
+          section_type?: string
+          title?: string | null
+          updated_at?: string
+          video_url?: string | null
         }
         Relationships: []
       }
